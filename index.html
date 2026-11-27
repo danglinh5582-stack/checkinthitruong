@@ -8,7 +8,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-10">
   <div class="max-w-2xl mx-auto bg-white min-h-screen sm:min-h-0 sm:my-6 sm:rounded-2xl shadow-md overflow-hidden">
-    <!-- Top Header + Góc chuyển chế độ Khảo sát / Báo cáo -->
+    <!-- Top Header -->
     <div class="bg-slate-900 text-white px-4 py-3.5 flex items-center justify-between gap-2">
       <div>
         <h1 class="text-base sm:text-lg font-bold tracking-tight">Khảo Sát & Báo Cáo Thị Trường</h1>
@@ -60,7 +60,7 @@
 
         <!-- Ảnh chụp thực tế -->
         <div>
-          <label class="block text-sm font-semibold mb-1">Ảnh chụp thực tế (đóng dấu ngày giờ + GPS) <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold mb-1">Ảnh chụp thực tế <span class="text-red-500">*</span></label>
           <label class="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 bg-blue-50/50 hover:bg-blue-50 rounded-xl p-4 cursor-pointer transition">
             <span class="text-sm font-medium text-blue-700">Chạm để mở Camera chụp ảnh</span>
             <span class="text-xs text-slate-500 mt-1">Chụp mặt tiền, kệ nhớt hoặc khu rửa xe</span>
@@ -76,7 +76,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-semibold mb-1">Chủ cơ sở / Người mua hàng & SĐT</label>
-            <input type="text" id="lienHe" placeholder="VD: Anh Minh - 098xxxxxxx"
+            <input type="text" id="lienHe" placeholder="VD: Anh Tuấn - 0986378288"
               class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
           </div>
 
@@ -91,31 +91,30 @@
               <option value="Trung tâm rửa xe / Detailing">Trung tâm rửa xe / Detailing</option>
               <option value="Cửa hàng phụ tùng / Dầu nhớt">Cửa hàng phụ tùng / Dầu nhớt</option>
               <option value="Xưởng / Nhà máy / Vận tải">Xưởng / Nhà máy / Vận tải</option>
-              <option value="Khác">Khác (bắt buộc nhập tay)</option>
+              <option value="Khác">Khác</option>
             </select>
           </div>
         </div>
 
-        <!-- Ô nhập tay khi chọn Khác (bắt buộc, chống điền dấu . đối phó) -->
-        <div id="loaiHinhKhacBox" class="hidden bg-amber-50/70 border border-amber-300 rounded-xl p-3">
-          <label class="block text-sm font-semibold text-amber-900 mb-1">
-            Nhập rõ loại hình điểm khảo sát <span class="text-red-500">*</span>
+        <!-- Nhập loại hình khi chọn Khác -->
+        <div id="loaiHinhKhacBox" class="hidden bg-slate-50 border border-slate-300 rounded-xl p-3">
+          <label class="block text-sm font-semibold mb-1">
+            Loại hình điểm khảo sát khác <span class="text-red-500">*</span>
           </label>
-          <input type="text" id="loaiHinhKhacInput" placeholder="VD: Trạm dừng nghỉ, HTX vận tải, Bãi xe container..."
-            class="w-full rounded-lg border border-amber-400 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
-          <p class="text-[11px] text-amber-800 mt-1">Ghi rõ tên loại hình thực tế (không nhập dấu chấm hay ký tự đối phó).</p>
+          <input type="text" id="loaiHinhKhacInput" placeholder="VD: Trạm dừng nghỉ, HTX vận tải..."
+            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-semibold mb-1">Sản phẩm đang dùng / Hãng đang nhập</label>
-            <input type="text" id="sanPhamDangDung" placeholder="VD: Nhớt Castrol, rửa không chạm hãng X..."
+            <input type="text" id="sanPhamDangDung" placeholder="VD: Castrol, rửa không chạm hãng X..."
               class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
           </div>
 
           <div>
             <label class="block text-sm font-semibold mb-1">Lý do chưa dùng sản phẩm công ty</label>
-            <select id="lyDoChuaDung"
+            <select id="lyDoChuaDungSelect"
               class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
               <option value="">-- Chọn lý do chính --</option>
               <option value="Đang dùng ổn định hàng NCC khác">Đang dùng ổn định hàng NCC khác</option>
@@ -126,6 +125,30 @@
               <option value="Quy mô nhỏ / ít nhu cầu">Quy mô nhỏ / ít nhu cầu</option>
               <option value="Lý do khác">Lý do khác</option>
             </select>
+          </div>
+        </div>
+
+        <!-- Nhập lý do khi chọn Lý do khác -->
+        <div id="lyDoKhacBox" class="hidden bg-slate-50 border border-slate-300 rounded-xl p-3">
+          <label class="block text-sm font-semibold mb-1">
+            Lý do chưa dùng khác <span class="text-red-500">*</span>
+          </label>
+          <input type="text" id="lyDoKhacInput" placeholder="Nhập lý do cụ thể..."
+            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+        </div>
+
+        <!-- Sản phẩm đã mua & Ngày hẹn chăm sóc lại -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">Sản phẩm đã mua</label>
+            <input type="text" id="sanPhamDaMua" placeholder="VD: 2 can rửa không chạm, nước rửa kính..."
+              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1">Ngày hẹn chăm sóc lại</label>
+            <input type="date" id="ngayHenChamSocLai"
+              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
           </div>
         </div>
 
@@ -167,7 +190,6 @@
 
     <!-- ==================== VIEW 2: BÁO CÁO TRỰC TIẾP & SỬA DỮ LIỆU ==================== -->
     <div id="reportView" class="hidden p-4 sm:p-5 space-y-4">
-      <!-- Bộ lọc thời gian (Ngày / Tháng / Năm / Tất cả) -->
       <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex flex-wrap items-center gap-1.5">
@@ -195,7 +217,6 @@
           </button>
         </div>
 
-        <!-- Ô chọn giá trị thời gian tương ứng -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div id="pickerDayBox">
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Chọn ngày</label>
@@ -214,14 +235,13 @@
           </div>
 
           <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tìm tên gara / nhân viên / loại hình</label>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tìm tên gara / nhân viên / sản phẩm</label>
             <input type="text" id="filterKeyword" placeholder="Gõ từ khóa để lọc nhanh..."
               class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs" />
           </div>
         </div>
       </div>
 
-      <!-- Thống kê nhanh -->
       <div class="grid grid-cols-3 gap-2 text-center">
         <div class="bg-blue-50 border border-blue-100 rounded-xl p-2.5">
           <div class="text-[11px] text-blue-700 font-medium">Tổng điểm khảo sát</div>
@@ -238,8 +258,6 @@
       </div>
 
       <div id="reportStatus" class="text-xs text-slate-500">Đang tải dữ liệu báo cáo...</div>
-
-      <!-- Danh sách báo cáo -->
       <div id="reportList" class="space-y-3"></div>
     </div>
   </div>
@@ -285,14 +303,14 @@
               <option value="Trung tâm rửa xe / Detailing">Trung tâm rửa xe / Detailing</option>
               <option value="Cửa hàng phụ tùng / Dầu nhớt">Cửa hàng phụ tùng / Dầu nhớt</option>
               <option value="Xưởng / Nhà máy / Vận tải">Xưởng / Nhà máy / Vận tải</option>
-              <option value="Khác">Khác (nhập tay)</option>
+              <option value="Khác">Khác</option>
             </select>
           </div>
         </div>
 
         <div id="editLoaiHinhKhacBox" class="hidden">
-          <label class="block text-xs font-semibold text-amber-900 mb-1">Nhập rõ loại hình *</label>
-          <input type="text" id="editLoaiHinhKhacInput" class="w-full rounded-lg border border-amber-400 px-3 py-2 text-sm" />
+          <label class="block text-xs font-semibold mb-1">Loại hình điểm khảo sát khác *</label>
+          <input type="text" id="editLoaiHinhKhacInput" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -302,7 +320,7 @@
           </div>
           <div>
             <label class="block text-xs font-semibold mb-1">Lý do chưa dùng</label>
-            <select id="editLyDo" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+            <select id="editLyDoSelect" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
               <option value="">-- Chọn lý do --</option>
               <option value="Đang dùng ổn định hàng NCC khác">Đang dùng ổn định hàng NCC khác</option>
               <option value="Giá / chiết khấu chưa phù hợp">Giá / chiết khấu chưa phù hợp</option>
@@ -312,6 +330,22 @@
               <option value="Quy mô nhỏ / ít nhu cầu">Quy mô nhỏ / ít nhu cầu</option>
               <option value="Lý do khác">Lý do khác</option>
             </select>
+          </div>
+        </div>
+
+        <div id="editLyDoKhacBox" class="hidden">
+          <label class="block text-xs font-semibold mb-1">Lý do chưa dùng khác *</label>
+          <input type="text" id="editLyDoKhacInput" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold mb-1">Sản phẩm đã mua</label>
+            <input type="text" id="editSanPhamDaMua" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Ngày hẹn chăm sóc lại</label>
+            <input type="date" id="editNgayHen" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm" />
           </div>
         </div>
 
@@ -354,7 +388,15 @@
       'Xưởng / Nhà máy / Vận tải'
     ];
 
-    // Elements form khảo sát
+    const PRESET_REASONS = [
+      'Đang dùng ổn định hàng NCC khác',
+      'Giá / chiết khấu chưa phù hợp',
+      'Đang bị ràng buộc công nợ / hợp đồng',
+      'Chưa biết đến sản phẩm / thương hiệu',
+      'Chưa gặp người quyết định nhập hàng',
+      'Quy mô nhỏ / ít nhu cầu'
+    ];
+
     const tabSurveyBtn = document.getElementById('tabSurveyBtn');
     const tabReportBtn = document.getElementById('tabReportBtn');
     const surveyView = document.getElementById('surveyView');
@@ -370,14 +412,21 @@
     const previewBoxEl = document.getElementById('previewBox');
     const previewImgEl = document.getElementById('previewImg');
     const imgInfoEl = document.getElementById('imgInfo');
+
     const loaiHinhSelectEl = document.getElementById('loaiHinhSelect');
     const loaiHinhKhacBoxEl = document.getElementById('loaiHinhKhacBox');
     const loaiHinhKhacInputEl = document.getElementById('loaiHinhKhacInput');
+
+    const lyDoChuaDungSelectEl = document.getElementById('lyDoChuaDungSelect');
+    const lyDoKhacBoxEl = document.getElementById('lyDoKhacBox');
+    const lyDoKhacInputEl = document.getElementById('lyDoKhacInput');
+
+    const sanPhamDaMuaEl = document.getElementById('sanPhamDaMua');
+    const ngayHenChamSocLaiEl = document.getElementById('ngayHenChamSocLai');
     const mucDoEl = document.getElementById('mucDoTiemNang');
     const btnSubmitEl = document.getElementById('btnSubmit');
     const resultMsgEl = document.getElementById('resultMsg');
 
-    // Elements báo cáo
     const filterDateEl = document.getElementById('filterDate');
     const filterMonthEl = document.getElementById('filterMonth');
     const filterYearEl = document.getElementById('filterYear');
@@ -390,7 +439,6 @@
     let allRecords = [];
     let currentPeriod = 'day';
 
-    // Khởi tạo ngày/tháng/năm mặc định theo hôm nay
     const todayObj = new Date();
     const yyyy = todayObj.getFullYear();
     const mm = String(todayObj.getMonth() + 1).padStart(2, '0');
@@ -402,7 +450,21 @@
     const savedNV = localStorage.getItem('ks_nhanVien');
     if (savedNV) nhanVienEl.value = savedNV;
 
-    // Chuyển tab Khảo sát / Báo cáo ở góc trên
+    // Bộ đếm giây khi đang chờ lưu
+    function startSecondsCounter(buttonEl, baseText) {
+      let sec = 0;
+      buttonEl.disabled = true;
+      buttonEl.textContent = `${baseText} (0s)`;
+      const timerId = setInterval(() => {
+        sec += 1;
+        buttonEl.textContent = `${baseText} (${sec}s)`;
+      }, 1000);
+      return () => {
+        clearInterval(timerId);
+        buttonEl.disabled = false;
+      };
+    }
+
     function switchTab(tab) {
       if (tab === 'survey') {
         surveyView.classList.remove('hidden');
@@ -421,7 +483,6 @@
     tabSurveyBtn.addEventListener('click', () => switchTab('survey'));
     tabReportBtn.addEventListener('click', () => switchTab('report'));
 
-    // Xử lý chọn loại hình & bắt buộc nhập tay khi chọn Khác
     loaiHinhSelectEl.addEventListener('change', () => {
       if (loaiHinhSelectEl.value === 'Khác') {
         loaiHinhKhacBoxEl.classList.remove('hidden');
@@ -434,9 +495,20 @@
       }
     });
 
+    lyDoChuaDungSelectEl.addEventListener('change', () => {
+      if (lyDoChuaDungSelectEl.value === 'Lý do khác') {
+        lyDoKhacBoxEl.classList.remove('hidden');
+        lyDoKhacInputEl.required = true;
+        lyDoKhacInputEl.focus();
+      } else {
+        lyDoKhacBoxEl.classList.add('hidden');
+        lyDoKhacInputEl.required = false;
+        lyDoKhacInputEl.value = '';
+      }
+    });
+
     function validateMeaningfulText(raw) {
       const cleaned = String(raw || '').trim();
-      // Phải có ít nhất 2 ký tự chữ hoặc số (tiếng Việt có dấu), không chỉ là dấu chấm, gạch ngang hay khoảng trắng
       const lettersOrDigits = cleaned.match(/[\p{L}\p{N}]/gu) || [];
       return cleaned.length >= 2 && lettersOrDigits.length >= 2;
     }
@@ -445,7 +517,7 @@
       if (loaiHinhSelectEl.value === 'Khác') {
         const customVal = loaiHinhKhacInputEl.value.trim();
         if (!validateMeaningfulText(customVal)) {
-          return { error: 'Bạn đã chọn "Khác" — vui lòng nhập rõ tên loại hình thực tế (không điền dấu chấm hay ký tự đối phó).' };
+          return { error: 'Vui lòng nhập nội dung cụ thể cho loại hình điểm khảo sát.' };
         }
         return { value: customVal };
       }
@@ -455,7 +527,17 @@
       return { value: loaiHinhSelectEl.value };
     }
 
-    // Mức độ tiềm năng
+    function getResolvedLyDo() {
+      if (lyDoChuaDungSelectEl.value === 'Lý do khác') {
+        const customReason = lyDoKhacInputEl.value.trim();
+        if (!validateMeaningfulText(customReason)) {
+          return { error: 'Vui lòng nhập nội dung cụ thể cho lý do chưa dùng sản phẩm.' };
+        }
+        return { value: customReason };
+      }
+      return { value: lyDoChuaDungSelectEl.value };
+    }
+
     document.querySelectorAll('.pot-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.pot-btn').forEach(b => {
@@ -466,7 +548,6 @@
       });
     });
 
-    // GPS & Reverse Geocoding
     async function fetchLocation() {
       gpsStatusEl.textContent = 'Đang lấy tọa độ GPS...';
       if (!navigator.geolocation) {
@@ -500,7 +581,6 @@
     document.getElementById('btnGetLocation').addEventListener('click', fetchLocation);
     fetchLocation();
 
-    // Đóng dấu watermark & nén ảnh
     function renderStampedImage(dataUrl) {
       return new Promise((resolve) => {
         const img = new Image();
@@ -578,7 +658,6 @@
       });
     });
 
-    // Gửi báo cáo mới
     document.getElementById('surveyForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       resultMsgEl.classList.add('hidden');
@@ -588,6 +667,13 @@
         showMessage(typeCheck.error, false);
         return;
       }
+
+      const reasonCheck = getResolvedLyDo();
+      if (reasonCheck.error) {
+        showMessage(reasonCheck.error, false);
+        return;
+      }
+
       if (!mucDoEl.value) {
         showMessage('Vui lòng chọn Mức độ tiềm năng.', false);
         return;
@@ -597,8 +683,7 @@
         return;
       }
 
-      btnSubmitEl.disabled = true;
-      btnSubmitEl.textContent = 'Đang gửi báo cáo...';
+      const stopCounter = startSecondsCounter(btnSubmitEl, 'Đang gửi báo cáo');
       localStorage.setItem('ks_nhanVien', nhanVienEl.value.trim());
 
       const payload = {
@@ -611,7 +696,9 @@
         lienHe: document.getElementById('lienHe').value.trim(),
         loaiHinh: typeCheck.value,
         sanPhamDangDung: document.getElementById('sanPhamDangDung').value.trim(),
-        lyDoChuaDung: document.getElementById('lyDoChuaDung').value,
+        lyDoChuaDung: reasonCheck.value,
+        sanPhamDaMua: sanPhamDaMuaEl.value.trim(),
+        ngayHenChamSocLai: ngayHenChamSocLaiEl.value,
         mucDoTiemNang: mucDoEl.value,
         ghiChu: document.getElementById('ghiChu').value.trim(),
         imageBase64: stampedDataUrl,
@@ -636,7 +723,12 @@
           loaiHinhKhacBoxEl.classList.add('hidden');
           loaiHinhKhacInputEl.required = false;
           document.getElementById('sanPhamDangDung').value = '';
-          document.getElementById('lyDoChuaDung').value = '';
+          lyDoChuaDungSelectEl.value = '';
+          lyDoKhacInputEl.value = '';
+          lyDoKhacBoxEl.classList.add('hidden');
+          lyDoKhacInputEl.required = false;
+          sanPhamDaMuaEl.value = '';
+          ngayHenChamSocLaiEl.value = '';
           document.getElementById('ghiChu').value = '';
           mucDoEl.value = '';
           document.querySelectorAll('.pot-btn').forEach(b => {
@@ -651,9 +743,9 @@
           showMessage('Lỗi từ hệ thống: ' + (data.message || 'Không rõ nguyên nhân'), false);
         }
       } catch (err) {
-        showMessage('Không gửi được dữ liệu. Vui lòng kiểm tra kết nối mạng.', false);
+        showMessage('Không gửi được dữ liệu. Kiểm tra kết nối mạng hoặc tên tab Google Sheets.', false);
       } finally {
-        btnSubmitEl.disabled = false;
+        stopCounter();
         btnSubmitEl.textContent = 'Gửi Báo Cáo Khảo Sát';
       }
     });
@@ -690,7 +782,7 @@
     document.getElementById('btnRefreshReport').addEventListener('click', loadReportData);
 
     async function loadReportData() {
-      reportStatusEl.textContent = 'Đang tải dữ liệu từ hệ thống...';
+      reportStatusEl.textContent = 'Đang tải dữ liệu báo cáo...';
       try {
         const res = await fetch(`${WEB_APP_URL}?action=list`);
         const json = await res.json();
@@ -701,7 +793,7 @@
           reportStatusEl.textContent = 'Lỗi tải dữ liệu: ' + (json.message || '');
         }
       } catch (err) {
-        reportStatusEl.textContent = 'Không tải được danh sách báo cáo. Kiểm tra kết nối hoặc quyền Web App.';
+        reportStatusEl.textContent = 'Không tải được danh sách báo cáo.';
       }
     }
 
@@ -727,7 +819,8 @@
         if (kw) {
           const hay = [
             rec.NhanVien, rec.TenCuaHang, rec.DiaChi, rec.LoaiHinh,
-            rec.SanPhamDangDung, rec.LyDoChuaDung, rec.MucDoTiemNang, rec.GhiChu, rec.NguoiLienHe_SDT
+            rec.SanPhamDangDung, rec.LyDoChuaDung, rec.SanPhamDaMua,
+            rec.NgayHenChamSocLai, rec.MucDoTiemNang, rec.GhiChu, rec.NguoiLienHe_SDT
           ].map(v => String(v || '').toLowerCase()).join(' ');
           if (!hay.includes(kw)) return false;
         }
@@ -783,6 +876,8 @@
               ${rec.NguoiLienHe_SDT ? `<div><span class="font-semibold">Liên hệ:</span> ${escapeHtml(rec.NguoiLienHe_SDT)}</div>` : ''}
               ${rec.SanPhamDangDung ? `<div><span class="font-semibold">Đang dùng:</span> ${escapeHtml(rec.SanPhamDangDung)}</div>` : ''}
               ${rec.LyDoChuaDung ? `<div><span class="font-semibold">Lý do chưa dùng:</span> ${escapeHtml(rec.LyDoChuaDung)}</div>` : ''}
+              ${rec.SanPhamDaMua ? `<div><span class="font-semibold">Sản phẩm đã mua:</span> ${escapeHtml(rec.SanPhamDaMua)}</div>` : ''}
+              ${rec.NgayHenChamSocLai ? `<div><span class="font-semibold">Ngày hẹn chăm sóc lại:</span> ${escapeHtml(rec.NgayHenChamSocLai)}</div>` : ''}
               ${rec.GhiChu ? `<div><span class="font-semibold">Ghi chú:</span> ${escapeHtml(rec.GhiChu)}</div>` : ''}
             </div>
 
@@ -802,6 +897,11 @@
     const editLoaiHinhSelect = document.getElementById('editLoaiHinhSelect');
     const editLoaiHinhKhacBox = document.getElementById('editLoaiHinhKhacBox');
     const editLoaiHinhKhacInput = document.getElementById('editLoaiHinhKhacInput');
+
+    const editLyDoSelect = document.getElementById('editLyDoSelect');
+    const editLyDoKhacBox = document.getElementById('editLyDoKhacBox');
+    const editLyDoKhacInput = document.getElementById('editLyDoKhacInput');
+
     const editErrorMsg = document.getElementById('editErrorMsg');
 
     editLoaiHinhSelect.addEventListener('change', () => {
@@ -812,6 +912,17 @@
         editLoaiHinhKhacBox.classList.add('hidden');
         editLoaiHinhKhacInput.required = false;
         editLoaiHinhKhacInput.value = '';
+      }
+    });
+
+    editLyDoSelect.addEventListener('change', () => {
+      if (editLyDoSelect.value === 'Lý do khác') {
+        editLyDoKhacBox.classList.remove('hidden');
+        editLyDoKhacInput.required = true;
+      } else {
+        editLyDoKhacBox.classList.add('hidden');
+        editLyDoKhacInput.required = false;
+        editLyDoKhacInput.value = '';
       }
     });
 
@@ -846,7 +957,27 @@
       }
 
       document.getElementById('editSanPham').value = rec.SanPhamDangDung || '';
-      document.getElementById('editLyDo').value = rec.LyDoChuaDung || '';
+
+      const reasonVal = String(rec.LyDoChuaDung || '').trim();
+      if (!reasonVal) {
+        editLyDoSelect.value = '';
+        editLyDoKhacBox.classList.add('hidden');
+        editLyDoKhacInput.required = false;
+        editLyDoKhacInput.value = '';
+      } else if (PRESET_REASONS.includes(reasonVal)) {
+        editLyDoSelect.value = reasonVal;
+        editLyDoKhacBox.classList.add('hidden');
+        editLyDoKhacInput.required = false;
+        editLyDoKhacInput.value = '';
+      } else {
+        editLyDoSelect.value = 'Lý do khác';
+        editLyDoKhacBox.classList.remove('hidden');
+        editLyDoKhacInput.required = true;
+        editLyDoKhacInput.value = reasonVal;
+      }
+
+      document.getElementById('editSanPhamDaMua').value = rec.SanPhamDaMua || '';
+      document.getElementById('editNgayHen').value = rec.NgayHenChamSocLai ? String(rec.NgayHenChamSocLai).slice(0, 10) : '';
       document.getElementById('editMucDo').value = rec.MucDoTiemNang || 'Trung bình';
       document.getElementById('editGhiChu').value = rec.GhiChu || '';
 
@@ -870,16 +1001,26 @@
       if (finalLoaiHinh === 'Khác') {
         const customText = editLoaiHinhKhacInput.value.trim();
         if (!validateMeaningfulText(customText)) {
-          editErrorMsg.textContent = 'Vui lòng nhập rõ tên loại hình thực tế (không điền dấu chấm hay ký tự đối phó).';
+          editErrorMsg.textContent = 'Vui lòng nhập nội dung cụ thể cho loại hình điểm khảo sát.';
           editErrorMsg.classList.remove('hidden');
           return;
         }
         finalLoaiHinh = customText;
       }
 
+      let finalLyDo = editLyDoSelect.value;
+      if (finalLyDo === 'Lý do khác') {
+        const customReason = editLyDoKhacInput.value.trim();
+        if (!validateMeaningfulText(customReason)) {
+          editErrorMsg.textContent = 'Vui lòng nhập nội dung cụ thể cho lý do chưa dùng sản phẩm.';
+          editErrorMsg.classList.remove('hidden');
+          return;
+        }
+        finalLyDo = customReason;
+      }
+
       const saveBtn = document.getElementById('saveEditBtn');
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Đang lưu...';
+      const stopCounter = startSecondsCounter(saveBtn, 'Đang lưu');
 
       const payload = {
         action: 'update',
@@ -891,7 +1032,9 @@
         lienHe: document.getElementById('editLienHe').value.trim(),
         loaiHinh: finalLoaiHinh,
         sanPhamDangDung: document.getElementById('editSanPham').value.trim(),
-        lyDoChuaDung: document.getElementById('editLyDo').value,
+        lyDoChuaDung: finalLyDo,
+        sanPhamDaMua: document.getElementById('editSanPhamDaMua').value.trim(),
+        ngayHenChamSocLai: document.getElementById('editNgayHen').value,
         mucDoTiemNang: document.getElementById('editMucDo').value,
         ghiChu: document.getElementById('editGhiChu').value.trim()
       };
@@ -914,7 +1057,7 @@
         editErrorMsg.textContent = 'Không lưu được thay đổi. Kiểm tra kết nối mạng.';
         editErrorMsg.classList.remove('hidden');
       } finally {
-        saveBtn.disabled = false;
+        stopCounter();
         saveBtn.textContent = 'Lưu thay đổi';
       }
     });
