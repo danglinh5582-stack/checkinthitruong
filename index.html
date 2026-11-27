@@ -2,100 +2,103 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Khảo Sát & Báo Cáo Thị Trường</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style type="text/tailwindcss">
+    @layer components {
+      .fld { @apply w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base sm:text-lg focus:outline-none focus:ring-2 focus:ring-blue-600; }
+      .lbl { @apply block text-base sm:text-lg font-bold mb-1.5 text-slate-800; }
+      .pot-btn { @apply py-3 px-2 rounded-xl border-2 text-base sm:text-lg font-bold border-slate-300 text-slate-700 bg-white; }
+      .pot-btn.active { @apply bg-blue-600 border-blue-600 text-white; }
+      .period-btn { @apply px-4 py-2.5 rounded-xl text-base font-bold bg-white border border-slate-300 text-slate-700; }
+      .period-btn.active { @apply bg-blue-600 border-blue-600 text-white; }
+      .tab-btn { @apply px-4 py-2 rounded-lg text-base sm:text-lg font-bold text-slate-300; }
+      .tab-btn.active { @apply bg-blue-600 text-white; }
+      .badge { @apply inline-block px-2.5 py-1 rounded-full text-sm font-bold; }
+    }
+    html { -webkit-text-size-adjust: 100%; }
+    body { font-size: 17px; }
+    #reportTable th { position: sticky; top: var(--th, 0px); z-index: 10; }
+    #reportTable td { word-break: break-word; overflow-wrap: anywhere; }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen pb-10">
-  <div id="mainContainer" class="max-w-2xl mx-auto bg-white min-h-screen sm:min-h-0 sm:my-6 sm:rounded-2xl shadow-md overflow-hidden transition-all duration-200">
-    <!-- Top Header -->
-    <div class="bg-slate-900 text-white px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
-      <div>
-        <h1 class="text-base sm:text-xl font-bold tracking-tight">Khảo Sát & Báo Cáo Thị Trường</h1>
-        <p class="text-[11px] sm:text-xs text-slate-300">Dầu mỡ, nước làm mát, nước rửa kính & hóa chất gara</p>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+  <div id="mainContainer" class="max-w-3xl mx-auto bg-white min-h-screen sm:min-h-0 sm:my-4 sm:rounded-2xl shadow-md">
+
+    <!-- Header cố định -->
+    <div id="appHeader" class="sticky top-0 z-40 bg-slate-900 text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sm:rounded-t-2xl">
+      <div class="min-w-0">
+        <h1 class="text-lg sm:text-2xl font-extrabold tracking-tight leading-tight">Khảo Sát & Báo Cáo Thị Trường</h1>
+        <p class="hidden sm:block text-sm text-slate-300">Dầu mỡ, nước làm mát, nước rửa kính & hóa chất gara</p>
       </div>
       <div class="flex items-center bg-slate-800 p-1 rounded-xl shrink-0">
-        <button type="button" id="tabSurveyBtn"
-          class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-blue-600 text-white transition">
-          Khảo sát
-        </button>
-        <button type="button" id="tabReportBtn"
-          class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition">
-          Báo cáo
-        </button>
+        <button type="button" id="tabSurveyBtn" class="tab-btn active">Khảo sát</button>
+        <button type="button" id="tabReportBtn" class="tab-btn">Báo cáo</button>
       </div>
     </div>
 
     <!-- ==================== VIEW 1: FORM KHẢO SÁT ==================== -->
     <div id="surveyView" class="p-4 sm:p-6">
-      <form id="surveyForm" class="space-y-4">
+      <form id="surveyForm" class="space-y-5">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold mb-1">Nhân viên phụ trách <span class="text-red-500">*</span></label>
-            <input type="text" id="nhanVienPhuTrach" required placeholder="Nhập họ tên nhân viên..."
-              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <label class="lbl">Nhân viên phụ trách <span class="text-red-500">*</span></label>
+            <input type="text" id="nhanVienPhuTrach" required placeholder="Nhập họ tên nhân viên..." class="fld" />
           </div>
           <div>
-            <label class="block text-sm font-semibold mb-1">Tên khách hàng / gara / cửa hàng <span class="text-red-500">*</span></label>
-            <input type="text" id="tenKhachHang" required placeholder="VD: Gara sửa chữa ô tô Thành Đạt..."
-              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <label class="lbl">Tên khách hàng / gara / cửa hàng <span class="text-red-500">*</span></label>
+            <input type="text" id="tenKhachHang" required placeholder="VD: Gara Thành Đạt..." class="fld" />
           </div>
         </div>
 
-        <!-- Địa chỉ & GPS -->
-        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-600 uppercase">Vị trí GPS & Địa chỉ <span class="text-red-500">*</span></span>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-base font-bold text-slate-700 uppercase">Vị trí GPS & Địa chỉ <span class="text-red-500">*</span></span>
             <button type="button" id="btnGetLocation"
-              class="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-md font-medium active:bg-blue-100">
+              class="text-base bg-blue-50 text-blue-700 border border-blue-300 px-3.5 py-2 rounded-lg font-bold active:bg-blue-100">
               Lấy lại GPS
             </button>
           </div>
-          <div id="gpsStatus" class="text-xs text-slate-500">Đang lấy tọa độ GPS...</div>
-          <input type="text" id="diaChi" required placeholder="Địa chỉ tự động hoặc nhập/sửa đầy đủ..."
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+          <div id="gpsStatus" class="text-base text-slate-600">Đang lấy tọa độ GPS...</div>
+          <input type="text" id="diaChi" required placeholder="Địa chỉ tự động hoặc nhập/sửa đầy đủ..." class="fld" />
           <input type="hidden" id="lat" />
           <input type="hidden" id="lng" />
         </div>
 
-        <!-- Ảnh chụp thực tế -->
         <div>
-          <label class="block text-sm font-semibold mb-1">Ảnh chụp thực tế <span class="text-red-500">*</span></label>
-          <label class="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 bg-blue-50/50 hover:bg-blue-50 rounded-xl p-4 cursor-pointer transition">
-            <span class="text-sm font-medium text-blue-700">Chạm để mở Camera chụp ảnh</span>
-            <span class="text-xs text-slate-500 mt-1">Chụp mặt tiền, kệ nhớt hoặc khu rửa xe</span>
+          <label class="lbl">Ảnh chụp thực tế <span class="text-red-500">*</span></label>
+          <label class="flex flex-col items-center justify-center border-2 border-dashed border-blue-400 bg-blue-50/60 hover:bg-blue-50 rounded-xl p-5 cursor-pointer transition">
+            <span class="text-lg font-bold text-blue-700">Chạm để mở Camera chụp ảnh</span>
+            <span class="text-base text-slate-600 mt-1 text-center">Chụp mặt tiền, kệ nhớt hoặc khu rửa xe</span>
             <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" />
           </label>
-
           <div id="previewBox" class="mt-3 hidden">
-            <img id="previewImg" alt="Ảnh xem trước" class="w-full max-h-80 object-contain rounded-xl border border-slate-200 bg-slate-50" />
-            <p id="imgInfo" class="text-[11px] text-slate-500 mt-1"></p>
+            <img id="previewImg" alt="Ảnh xem trước" class="w-full max-h-96 object-contain rounded-xl border border-slate-200 bg-slate-50" />
+            <p id="imgInfo" class="text-sm text-slate-600 mt-1"></p>
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm font-semibold mb-1">Người liên hệ <span class="text-red-500">*</span></label>
-            <input type="text" id="nguoiLienHe" required placeholder="VD: Anh Tuấn"
-              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <label class="lbl">Người liên hệ <span class="text-red-500">*</span></label>
+            <input type="text" id="nguoiLienHe" required placeholder="VD: Anh Tuấn" class="fld" />
           </div>
           <div>
-            <label class="block text-sm font-semibold mb-1">SĐT <span class="text-red-500">*</span></label>
-            <input type="tel" id="sdt" required placeholder="VD: 0986378288"
-              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <label class="lbl">SĐT <span class="text-red-500">*</span></label>
+            <input type="tel" id="sdt" required placeholder="VD: 0986378288" class="fld" />
           </div>
           <div>
-            <label class="block text-sm font-semibold mb-1">Zalo <span class="text-red-500">*</span></label>
-            <input type="text" id="zalo" required placeholder="Số Zalo hoặc tên Zalo..."
-              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <label class="lbl">Zalo <span class="text-red-500">*</span></label>
+            <input type="text" id="zalo" required placeholder="Số hoặc tên Zalo..." class="fld" />
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold mb-1">Loại cửa hàng <span class="text-red-500">*</span></label>
-            <select id="loaiCuaHangSelect" required
-              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+            <label class="lbl">Loại cửa hàng <span class="text-red-500">*</span></label>
+            <select id="loaiCuaHangSelect" required class="fld">
               <option value="">-- Chọn loại cửa hàng --</option>
               <option value="Gara sửa chữa ô tô">Gara sửa chữa ô tô</option>
               <option value="Tiệm sửa & rửa xe máy">Tiệm sửa & rửa xe máy</option>
@@ -105,39 +108,32 @@
               <option value="Khác">Khác</option>
             </select>
           </div>
-
           <div>
-            <label class="block text-sm font-semibold mb-1">Sản phẩm quan tâm <span class="text-red-500">*</span></label>
-            <input type="text" id="sanPhamQuanTam" required placeholder="VD: Rửa xe không chạm, nước làm mát..."
-              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <label class="lbl">Sản phẩm quan tâm <span class="text-red-500">*</span></label>
+            <input type="text" id="sanPhamQuanTam" required placeholder="VD: Rửa xe không chạm, nước làm mát..." class="fld" />
           </div>
         </div>
 
         <div id="loaiCuaHangKhacBox" class="hidden bg-slate-50 border border-slate-300 rounded-xl p-3">
-          <label class="block text-sm font-semibold mb-1">Loại cửa hàng khác <span class="text-red-500">*</span></label>
-          <input type="text" id="loaiCuaHangKhacInput" placeholder="VD: Trạm dừng nghỉ, HTX vận tải..."
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+          <label class="lbl">Loại cửa hàng khác <span class="text-red-500">*</span></label>
+          <input type="text" id="loaiCuaHangKhacInput" placeholder="VD: Trạm dừng nghỉ, HTX vận tải..." class="fld" />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold mb-1">Sản phẩm đã mua <span class="text-red-500">*</span></label>
-            <input type="text" id="sanPhamDaMua" required placeholder="VD: Chưa mua / 1 can bóng lốp..."
-              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <label class="lbl">Sản phẩm đã mua <span class="text-red-500">*</span></label>
+            <input type="text" id="sanPhamDaMua" required placeholder="VD: Chưa mua / 1 can bóng lốp..." class="fld" />
           </div>
-
           <div>
-            <label class="block text-sm font-semibold mb-1">Sản phẩm đang dùng <span class="text-red-500">*</span></label>
-            <input type="text" id="sanPhamDangDung" required placeholder="VD: Castrol, dung dịch hãng X..."
-              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <label class="lbl">Sản phẩm đang dùng <span class="text-red-500">*</span></label>
+            <input type="text" id="sanPhamDangDung" required placeholder="VD: Castrol, dung dịch hãng X..." class="fld" />
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold mb-1">Lý do chưa dùng sản phẩm công ty <span class="text-red-500">*</span></label>
-            <select id="lyDoChuaDungSelect" required
-              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+            <label class="lbl">Lý do chưa dùng sản phẩm công ty <span class="text-red-500">*</span></label>
+            <select id="lyDoChuaDungSelect" required class="fld">
               <option value="">-- Chọn lý do --</option>
               <option value="Đang dùng ổn định hàng NCC khác">Đang dùng ổn định hàng NCC khác</option>
               <option value="Giá / chiết khấu chưa phù hợp">Giá / chiết khấu chưa phù hợp</option>
@@ -148,105 +144,70 @@
               <option value="Lý do khác">Lý do khác</option>
             </select>
           </div>
-
           <div>
-            <label class="block text-sm font-semibold mb-1">Ngày hẹn chăm sóc lại <span class="text-red-500">*</span></label>
-            <input type="date" id="ngayHenChamSocLai" required
-              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <label class="lbl">Ngày hẹn chăm sóc lại <span class="text-red-500">*</span></label>
+            <input type="date" id="ngayHenChamSocLai" required class="fld" />
           </div>
         </div>
 
         <div id="lyDoKhacBox" class="hidden bg-slate-50 border border-slate-300 rounded-xl p-3">
-          <label class="block text-sm font-semibold mb-1">Lý do chưa dùng khác <span class="text-red-500">*</span></label>
-          <input type="text" id="lyDoKhacInput" placeholder="Nhập lý do cụ thể..."
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+          <label class="lbl">Lý do chưa dùng khác <span class="text-red-500">*</span></label>
+          <input type="text" id="lyDoKhacInput" placeholder="Nhập lý do cụ thể..." class="fld" />
         </div>
 
-        <!-- Mức độ tiềm năng -->
         <div>
-          <label class="block text-sm font-semibold mb-1">Mức độ tiềm năng <span class="text-red-500">*</span></label>
-          <div class="grid grid-cols-3 gap-2">
-            <button type="button" data-val="Cao"
-              class="pot-btn py-2 px-2 rounded-lg border text-xs font-semibold border-slate-300 text-slate-700">
-              Cao
-            </button>
-            <button type="button" data-val="Trung bình"
-              class="pot-btn py-2 px-2 rounded-lg border text-xs font-semibold border-slate-300 text-slate-700">
-              Trung bình
-            </button>
-            <button type="button" data-val="Thấp"
-              class="pot-btn py-2 px-2 rounded-lg border text-xs font-semibold border-slate-300 text-slate-700">
-              Thấp
-            </button>
+          <label class="lbl">Mức độ tiềm năng <span class="text-red-500">*</span></label>
+          <div class="grid grid-cols-3 gap-2.5">
+            <button type="button" data-val="Cao" class="pot-btn">Cao</button>
+            <button type="button" data-val="Trung bình" class="pot-btn">Trung bình</button>
+            <button type="button" data-val="Thấp" class="pot-btn">Thấp</button>
           </div>
           <input type="hidden" id="mucDoTiemNang" required />
         </div>
 
-        <!-- Ghi chú -->
         <div>
-          <label class="block text-sm font-semibold mb-1">Ghi chú <span class="text-red-500">*</span></label>
-          <textarea id="ghiChu" rows="3" required placeholder="Ghi đầy đủ thông tin trao đổi, nhu cầu, lưu ý chăm sóc..."
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"></textarea>
+          <label class="lbl">Ghi chú <span class="text-red-500">*</span></label>
+          <textarea id="ghiChu" rows="4" required placeholder="Ghi đầy đủ thông tin trao đổi, nhu cầu, lưu ý chăm sóc..." class="fld"></textarea>
         </div>
 
         <button type="submit" id="btnSubmit"
-          class="w-full bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-semibold py-3 rounded-xl shadow transition disabled:opacity-50">
+          class="w-full bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white text-lg sm:text-xl font-bold py-4 rounded-xl shadow transition disabled:opacity-50">
           Gửi Báo Cáo Khảo Sát
         </button>
 
-        <div id="resultMsg" class="hidden text-sm rounded-xl p-3"></div>
+        <div id="resultMsg" class="hidden text-base sm:text-lg rounded-xl p-4"></div>
       </form>
     </div>
 
-    <!-- ==================== VIEW 2: BÁO CÁO TRÊN MÁY TÍNH & ĐIỆN THOẠI ==================== -->
-    <div id="reportView" class="hidden p-4 sm:p-6 space-y-4">
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-3">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div class="flex flex-wrap items-center gap-1.5">
-            <button type="button" data-period="day"
-              class="period-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white">
-              Theo ngày
-            </button>
-            <button type="button" data-period="month"
-              class="period-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-300 text-slate-700">
-              Theo tháng
-            </button>
-            <button type="button" data-period="year"
-              class="period-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-300 text-slate-700">
-              Theo năm
-            </button>
-            <button type="button" data-period="all"
-              class="period-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-300 text-slate-700">
-              Tất cả
-            </button>
+    <!-- ==================== VIEW 2: BÁO CÁO ==================== -->
+    <div id="reportView" class="hidden">
+
+      <!-- Thanh lọc (cố định dưới header trên màn hình lớn) -->
+      <div id="reportToolbar" class="bg-slate-50 border-b border-slate-200 px-3 sm:px-5 py-3 xl:sticky xl:top-[var(--hh,0px)] xl:z-30">
+        <div class="flex flex-wrap items-end gap-x-4 gap-y-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" data-period="day" class="period-btn active">Theo ngày</button>
+            <button type="button" data-period="month" class="period-btn">Theo tháng</button>
+            <button type="button" data-period="year" class="period-btn">Theo năm</button>
+            <button type="button" data-period="all" class="period-btn">Tất cả</button>
           </div>
 
-          <button type="button" id="btnRefreshReport"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-white hover:bg-slate-900">
-            Tải lại
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-          <div id="pickerDayBox">
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Chọn ngày</label>
-            <input type="date" id="filterDate"
-              class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs" />
+          <div id="pickerDayBox" class="w-full sm:w-auto">
+            <label class="block text-sm font-bold text-slate-600 mb-1">Chọn ngày</label>
+            <input type="date" id="filterDate" class="fld !py-2 !text-base" />
           </div>
-          <div id="pickerMonthBox" class="hidden">
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Chọn tháng</label>
-            <input type="month" id="filterMonth"
-              class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs" />
+          <div id="pickerMonthBox" class="hidden w-full sm:w-auto">
+            <label class="block text-sm font-bold text-slate-600 mb-1">Chọn tháng</label>
+            <input type="month" id="filterMonth" class="fld !py-2 !text-base" />
           </div>
-          <div id="pickerYearBox" class="hidden">
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Chọn năm</label>
-            <input type="number" id="filterYear" min="2020" max="2100"
-              class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs" />
+          <div id="pickerYearBox" class="hidden w-full sm:w-auto">
+            <label class="block text-sm font-bold text-slate-600 mb-1">Chọn năm</label>
+            <input type="number" id="filterYear" min="2020" max="2100" class="fld !py-2 !text-base" />
           </div>
 
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Lọc mức độ tiềm năng</label>
-            <select id="filterPotential" class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
+          <div class="w-full sm:w-auto">
+            <label class="block text-sm font-bold text-slate-600 mb-1">Mức độ tiềm năng</label>
+            <select id="filterPotential" class="fld !py-2 !text-base">
               <option value="">Tất cả mức độ</option>
               <option value="Cao">Cao</option>
               <option value="Trung bình">Trung bình</option>
@@ -254,106 +215,101 @@
             </select>
           </div>
 
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tìm tên KH / NV / sản phẩm</label>
-            <input type="text" id="filterKeyword" placeholder="Gõ từ khóa để lọc nhanh..."
-              class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs" />
+          <div class="w-full sm:flex-1 sm:min-w-[220px]">
+            <label class="block text-sm font-bold text-slate-600 mb-1">Tìm tên KH / NV / sản phẩm</label>
+            <input type="text" id="filterKeyword" placeholder="Gõ từ khóa để lọc nhanh..." class="fld !py-2 !text-base" />
+          </div>
+
+          <div class="flex gap-2 w-full sm:w-auto">
+            <button type="button" id="btnExportExcel"
+              class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-base font-bold bg-emerald-600 hover:bg-emerald-700 text-white">
+              ⬇ Tải Excel
+            </button>
+            <button type="button" id="btnRefreshReport"
+              class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-base font-bold bg-slate-800 hover:bg-slate-900 text-white">
+              Tải lại
+            </button>
           </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-3 text-center">
-        <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
-          <div class="text-xs text-blue-700 font-medium">Tổng điểm khảo sát</div>
-          <div id="statTotal" class="text-xl font-bold text-blue-900">0</div>
+      <div class="p-3 sm:p-5 space-y-4">
+        <div class="grid grid-cols-3 gap-2 sm:gap-4 text-center">
+          <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
+            <div class="text-sm sm:text-base text-blue-700 font-bold leading-tight">Tổng điểm khảo sát</div>
+            <div id="statTotal" class="text-2xl sm:text-3xl font-extrabold text-blue-900">0</div>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+            <div class="text-sm sm:text-base text-emerald-700 font-bold leading-tight">Tiềm năng Cao</div>
+            <div id="statHigh" class="text-2xl sm:text-3xl font-extrabold text-emerald-900">0</div>
+          </div>
+          <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
+            <div class="text-sm sm:text-base text-amber-700 font-bold leading-tight">Tiềm năng TB / Thấp</div>
+            <div id="statOther" class="text-2xl sm:text-3xl font-extrabold text-amber-900">0</div>
+          </div>
         </div>
-        <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
-          <div class="text-xs text-emerald-700 font-medium">Tiềm năng Cao</div>
-          <div id="statHigh" class="text-xl font-bold text-emerald-900">0</div>
+
+        <div id="reportStatus" class="text-base text-slate-700">Đang tải dữ liệu báo cáo...</div>
+
+        <!-- Bảng (màn hình rộng): vừa chiều ngang, không cuộn ngang -->
+        <div class="hidden xl:block border border-slate-200 rounded-xl">
+          <table id="reportTable" class="w-full table-fixed text-[15px] text-left border-collapse">
+            <colgroup>
+              <col style="width:9%"><col style="width:17%"><col style="width:12%"><col style="width:9%">
+              <col style="width:17%"><col style="width:11%"><col style="width:7%"><col style="width:11%"><col style="width:7%">
+            </colgroup>
+            <thead class="bg-slate-800 text-white">
+              <tr>
+                <th class="px-3 py-3 bg-slate-800 rounded-tl-xl">Ngày / NV</th>
+                <th class="px-3 py-3 bg-slate-800">Khách hàng & Địa chỉ</th>
+                <th class="px-3 py-3 bg-slate-800">Liên hệ / SĐT / Zalo</th>
+                <th class="px-3 py-3 bg-slate-800">Loại cửa hàng</th>
+                <th class="px-3 py-3 bg-slate-800">Sản phẩm</th>
+                <th class="px-3 py-3 bg-slate-800">Lý do chưa dùng / Hẹn lại</th>
+                <th class="px-3 py-3 bg-slate-800">Tiềm năng</th>
+                <th class="px-3 py-3 bg-slate-800">Ghi chú</th>
+                <th class="px-3 py-3 bg-slate-800 text-center rounded-tr-xl">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="reportTableBody" class="divide-y divide-slate-200 bg-white"></tbody>
+          </table>
         </div>
-        <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
-          <div class="text-xs text-amber-700 font-medium">Tiềm năng TB / Thấp</div>
-          <div id="statOther" class="text-xl font-bold text-amber-900">0</div>
-        </div>
+
+        <!-- Thẻ (điện thoại / máy tính bảng) -->
+        <div id="reportCardList" class="xl:hidden grid grid-cols-1 md:grid-cols-2 gap-4"></div>
       </div>
-
-      <div id="reportStatus" class="text-xs text-slate-600">Đang tải dữ liệu báo cáo...</div>
-
-      <div class="hidden lg:block overflow-x-auto border border-slate-200 rounded-xl">
-        <table class="min-w-full text-xs text-left border-collapse">
-          <thead class="bg-slate-800 text-white">
-            <tr>
-              <th class="px-3 py-2.5 whitespace-nowrap">Ngày checkin</th>
-              <th class="px-3 py-2.5 whitespace-nowrap">NV phụ trách</th>
-              <th class="px-3 py-2.5 whitespace-nowrap">Tên khách hàng</th>
-              <th class="px-3 py-2.5 whitespace-nowrap">Liên hệ / SĐT / Zalo</th>
-              <th class="px-3 py-2.5 whitespace-nowrap">Loại cửa hàng</th>
-              <th class="px-3 py-2.5 whitespace-nowrap">SP quan tâm</th>
-              <th class="px-3 py-2.5 whitespace-nowrap">SP đã mua</th>
-              <th class="px-3 py-2.5 whitespace-nowrap">SP đang dùng</th>
-              <th class="px-3 py-2.5 whitespace-nowrap">Lý do chưa dùng</th>
-              <th class="px-3 py-2.5 whitespace-nowrap">Ngày hẹn lại</th>
-              <th class="px-3 py-2.5 whitespace-nowrap">Tiềm năng</th>
-              <th class="px-3 py-2.5 whitespace-nowrap">Địa chỉ & Ghi chú</th>
-              <th class="px-3 py-2.5 whitespace-nowrap">Ảnh / GPS</th>
-              <th class="px-3 py-2.5 whitespace-nowrap text-center">Sửa</th>
-            </tr>
-          </thead>
-          <tbody id="reportTableBody" class="divide-y divide-slate-200 bg-white"></tbody>
-        </table>
-      </div>
-
-      <div id="reportCardList" class="lg:hidden space-y-3"></div>
     </div>
   </div>
 
   <!-- ==================== MODAL SỬA DỮ LIỆU ==================== -->
-  <div id="editModal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50">
-    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto p-5 space-y-3">
-      <div class="flex items-center justify-between border-b pb-2.5">
-        <h2 class="text-base font-bold text-slate-800">Sửa Thông Tin Khảo Sát</h2>
-        <button type="button" id="closeEditModal" class="text-slate-400 hover:text-slate-700 text-lg font-bold px-2">&times;</button>
+  <div id="editModal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-2 sm:p-4 z-50">
+    <div class="bg-white w-full max-w-3xl rounded-2xl shadow-xl max-h-[96vh] overflow-y-auto p-4 sm:p-6 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h2 class="text-xl font-extrabold text-slate-800">Sửa Thông Tin Khảo Sát</h2>
+        <button type="button" id="closeEditModal" class="text-slate-500 hover:text-slate-800 text-3xl font-bold px-3 leading-none">&times;</button>
       </div>
 
-      <form id="editForm" class="space-y-3">
+      <form id="editForm" class="space-y-4">
         <input type="hidden" id="editRowIndex" />
         <input type="hidden" id="editRecordId" />
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold mb-1">Nhân viên phụ trách *</label>
-            <input type="text" id="editNhanVien" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold mb-1">Tên khách hàng *</label>
-            <input type="text" id="editTenKH" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><label class="lbl">Nhân viên phụ trách *</label><input type="text" id="editNhanVien" required class="fld" /></div>
+          <div><label class="lbl">Tên khách hàng *</label><input type="text" id="editTenKH" required class="fld" /></div>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold mb-1">Địa chỉ *</label>
-          <input type="text" id="editDiaChi" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        <div><label class="lbl">Địa chỉ *</label><input type="text" id="editDiaChi" required class="fld" /></div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div><label class="lbl">Người liên hệ *</label><input type="text" id="editNguoiLienHe" required class="fld" /></div>
+          <div><label class="lbl">SĐT *</label><input type="text" id="editSDT" required class="fld" /></div>
+          <div><label class="lbl">Zalo *</label><input type="text" id="editZalo" required class="fld" /></div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold mb-1">Người liên hệ *</label>
-            <input type="text" id="editNguoiLienHe" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold mb-1">SĐT *</label>
-            <input type="text" id="editSDT" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold mb-1">Zalo *</label>
-            <input type="text" id="editZalo" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold mb-1">Loại cửa hàng *</label>
-            <select id="editLoaiCuaHangSelect" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+            <label class="lbl">Loại cửa hàng *</label>
+            <select id="editLoaiCuaHangSelect" required class="fld">
               <option value="Gara sửa chữa ô tô">Gara sửa chữa ô tô</option>
               <option value="Tiệm sửa & rửa xe máy">Tiệm sửa & rửa xe máy</option>
               <option value="Trung tâm rửa xe / Detailing">Trung tâm rửa xe / Detailing</option>
@@ -362,32 +318,23 @@
               <option value="Khác">Khác</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-semibold mb-1">Sản phẩm quan tâm *</label>
-            <input type="text" id="editSanPhamQuanTam" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          </div>
+          <div><label class="lbl">Sản phẩm quan tâm *</label><input type="text" id="editSanPhamQuanTam" required class="fld" /></div>
         </div>
 
         <div id="editLoaiCuaHangKhacBox" class="hidden">
-          <label class="block text-xs font-semibold mb-1">Loại cửa hàng khác *</label>
-          <input type="text" id="editLoaiCuaHangKhacInput" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <label class="lbl">Loại cửa hàng khác *</label>
+          <input type="text" id="editLoaiCuaHangKhacInput" class="fld" />
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold mb-1">Sản phẩm đã mua *</label>
-            <input type="text" id="editSanPhamDaMua" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold mb-1">Sản phẩm đang dùng *</label>
-            <input type="text" id="editSanPhamDangDung" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><label class="lbl">Sản phẩm đã mua *</label><input type="text" id="editSanPhamDaMua" required class="fld" /></div>
+          <div><label class="lbl">Sản phẩm đang dùng *</label><input type="text" id="editSanPhamDangDung" required class="fld" /></div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold mb-1">Lý do chưa dùng *</label>
-            <select id="editLyDoSelect" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+            <label class="lbl">Lý do chưa dùng *</label>
+            <select id="editLyDoSelect" required class="fld">
               <option value="Đang dùng ổn định hàng NCC khác">Đang dùng ổn định hàng NCC khác</option>
               <option value="Giá / chiết khấu chưa phù hợp">Giá / chiết khấu chưa phù hợp</option>
               <option value="Đang bị ràng buộc công nợ / hợp đồng">Đang bị ràng buộc công nợ / hợp đồng</option>
@@ -397,40 +344,30 @@
               <option value="Lý do khác">Lý do khác</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-semibold mb-1">Ngày hẹn chăm sóc lại *</label>
-            <input type="date" id="editNgayHen" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm" />
-          </div>
+          <div><label class="lbl">Ngày hẹn chăm sóc lại *</label><input type="date" id="editNgayHen" required class="fld" /></div>
         </div>
 
         <div id="editLyDoKhacBox" class="hidden">
-          <label class="block text-xs font-semibold mb-1">Lý do chưa dùng khác *</label>
-          <input type="text" id="editLyDoKhacInput" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <label class="lbl">Lý do chưa dùng khác *</label>
+          <input type="text" id="editLyDoKhacInput" class="fld" />
         </div>
 
         <div>
-          <label class="block text-xs font-semibold mb-1">Mức độ tiềm năng *</label>
-          <select id="editMucDo" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+          <label class="lbl">Mức độ tiềm năng *</label>
+          <select id="editMucDo" required class="fld">
             <option value="Cao">Cao</option>
             <option value="Trung bình">Trung bình</option>
             <option value="Thấp">Thấp</option>
           </select>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold mb-1">Ghi chú *</label>
-          <textarea id="editGhiChu" rows="2" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
-        </div>
+        <div><label class="lbl">Ghi chú *</label><textarea id="editGhiChu" rows="3" required class="fld"></textarea></div>
 
-        <div id="editErrorMsg" class="hidden text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg p-2"></div>
+        <div id="editErrorMsg" class="hidden text-base text-red-700 bg-red-50 border border-red-200 rounded-lg p-3"></div>
 
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" id="cancelEditBtn" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700">
-            Hủy
-          </button>
-          <button type="submit" id="saveEditBtn" class="px-4 py-2 rounded-xl bg-blue-700 text-white text-xs font-semibold hover:bg-blue-800">
-            Lưu thay đổi
-          </button>
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" id="cancelEditBtn" class="px-5 py-3 rounded-xl border border-slate-300 text-base font-bold text-slate-700">Hủy</button>
+          <button type="submit" id="saveEditBtn" class="px-5 py-3 rounded-xl bg-blue-700 text-white text-base font-bold hover:bg-blue-800">Lưu thay đổi</button>
         </div>
       </form>
     </div>
@@ -457,6 +394,8 @@
     ];
 
     const mainContainer = document.getElementById('mainContainer');
+    const appHeader = document.getElementById('appHeader');
+    const reportToolbar = document.getElementById('reportToolbar');
     const tabSurveyBtn = document.getElementById('tabSurveyBtn');
     const tabReportBtn = document.getElementById('tabReportBtn');
     const surveyView = document.getElementById('surveyView');
@@ -531,6 +470,21 @@
     const savedNV = localStorage.getItem('ks_nhanVien');
     if (savedNV) nhanVienEl.value = savedNV;
 
+    // ---- Tính vị trí dính (sticky) cho header, thanh lọc và dòng tiêu đề bảng ----
+    function updateStickyOffsets() {
+      const hh = appHeader.offsetHeight;
+      const isXL = window.matchMedia('(min-width: 1280px)').matches;
+      const tb = (isXL && !reportView.classList.contains('hidden')) ? reportToolbar.offsetHeight : 0;
+      document.documentElement.style.setProperty('--hh', hh + 'px');
+      document.documentElement.style.setProperty('--th', (hh + tb) + 'px');
+    }
+    window.addEventListener('resize', updateStickyOffsets);
+    if (window.ResizeObserver) {
+      new ResizeObserver(updateStickyOffsets).observe(appHeader);
+      new ResizeObserver(updateStickyOffsets).observe(reportToolbar);
+    }
+    updateStickyOffsets();
+
     function startSecondsCounter(buttonEl, baseText) {
       let sec = 0;
       buttonEl.disabled = true;
@@ -546,20 +500,17 @@
     }
 
     function switchTab(tab) {
-      if (tab === 'survey') {
-        mainContainer.className = 'max-w-2xl mx-auto bg-white min-h-screen sm:min-h-0 sm:my-6 sm:rounded-2xl shadow-md overflow-hidden transition-all duration-200';
-        surveyView.classList.remove('hidden');
-        reportView.classList.add('hidden');
-        tabSurveyBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-blue-600 text-white transition';
-        tabReportBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition';
-      } else {
-        mainContainer.className = 'max-w-7xl mx-auto bg-white min-h-screen sm:min-h-0 sm:my-6 sm:rounded-2xl shadow-md overflow-hidden transition-all duration-200';
-        surveyView.classList.add('hidden');
-        reportView.classList.remove('hidden');
-        tabReportBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-blue-600 text-white transition';
-        tabSurveyBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition';
-        loadReportData();
-      }
+      const isSurvey = tab === 'survey';
+      mainContainer.classList.toggle('max-w-3xl', isSurvey);
+      mainContainer.classList.toggle('max-w-[2000px]', !isSurvey);
+      mainContainer.classList.toggle('w-full', !isSurvey);
+      surveyView.classList.toggle('hidden', !isSurvey);
+      reportView.classList.toggle('hidden', isSurvey);
+      tabSurveyBtn.classList.toggle('active', isSurvey);
+      tabReportBtn.classList.toggle('active', !isSurvey);
+      updateStickyOffsets();
+      window.scrollTo({ top: 0 });
+      if (!isSurvey) loadReportData();
     }
 
     tabSurveyBtn.addEventListener('click', () => switchTab('survey'));
@@ -625,10 +576,8 @@
 
     document.querySelectorAll('.pot-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.pot-btn').forEach(b => {
-          b.className = 'pot-btn py-2 px-2 rounded-lg border text-xs font-semibold border-slate-300 text-slate-700';
-        });
-        btn.className = 'pot-btn py-2 px-2 rounded-lg border text-xs font-semibold bg-blue-600 border-blue-600 text-white';
+        document.querySelectorAll('.pot-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
         mucDoEl.value = btn.dataset.val;
       });
     });
@@ -832,9 +781,7 @@
           ngayHenEl.value = '';
           ghiChuEl.value = '';
           mucDoEl.value = '';
-          document.querySelectorAll('.pot-btn').forEach(b => {
-            b.className = 'pot-btn py-2 px-2 rounded-lg border text-xs font-semibold border-slate-300 text-slate-700';
-          });
+          document.querySelectorAll('.pot-btn').forEach(b => b.classList.remove('active'));
           cameraInputEl.value = '';
           rawImageDataUrl = '';
           stampedDataUrl = '';
@@ -854,24 +801,24 @@
     function showMessage(text, isSuccess) {
       resultMsgEl.textContent = text;
       resultMsgEl.className = isSuccess
-        ? 'text-sm rounded-xl p-3 bg-emerald-50 text-emerald-800 border border-emerald-200'
-        : 'text-sm rounded-xl p-3 bg-red-50 text-red-800 border border-red-200';
+        ? 'text-base sm:text-lg rounded-xl p-4 bg-emerald-50 text-emerald-800 border border-emerald-200'
+        : 'text-base sm:text-lg rounded-xl p-4 bg-red-50 text-red-800 border border-red-200';
       resultMsgEl.classList.remove('hidden');
+      resultMsgEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     // ==================== BÁO CÁO & SỬA ====================
     document.querySelectorAll('.period-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         currentPeriod = btn.dataset.period;
-        document.querySelectorAll('.period-btn').forEach(b => {
-          b.className = 'period-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-300 text-slate-700';
-        });
-        btn.className = 'period-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white';
+        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
 
         document.getElementById('pickerDayBox').classList.toggle('hidden', currentPeriod !== 'day');
         document.getElementById('pickerMonthBox').classList.toggle('hidden', currentPeriod !== 'month');
         document.getElementById('pickerYearBox').classList.toggle('hidden', currentPeriod !== 'year');
         renderFilteredReport();
+        updateStickyOffsets();
       });
     });
 
@@ -964,6 +911,14 @@
       return str;
     }
 
+    function cleanPhone(v) { return String(v || '').replace(/^'/, ''); }
+
+    function badgeClass(level) {
+      if (level === 'Cao') return 'bg-emerald-100 text-emerald-800';
+      if (level === 'Trung bình') return 'bg-amber-100 text-amber-800';
+      return 'bg-slate-200 text-slate-700';
+    }
+
     function renderFilteredReport() {
       const kw = filterKeywordEl.value.trim().toLowerCase();
       const pot = filterPotentialEl.value;
@@ -1000,95 +955,153 @@
       window.__currentFilteredRecords = filtered;
 
       if (total === 0) {
-        reportTableBodyEl.innerHTML = `<tr><td colspan="14" class="text-center py-8 text-slate-500">Không có bản ghi nào khớp bộ lọc hiện tại.</td></tr>`;
-        reportCardListEl.innerHTML = `<div class="text-center text-sm text-slate-500 py-8 bg-slate-50 rounded-xl border border-dashed border-slate-300">Không có bản ghi nào khớp bộ lọc hiện tại.</div>`;
+        reportTableBodyEl.innerHTML = `<tr><td colspan="9" class="text-center py-10 text-base text-slate-500">Không có bản ghi nào khớp bộ lọc hiện tại.</td></tr>`;
+        reportCardListEl.innerHTML = `<div class="md:col-span-2 text-center text-base text-slate-500 py-10 bg-slate-50 rounded-xl border border-dashed border-slate-300">Không có bản ghi nào khớp bộ lọc hiện tại.</div>`;
         return;
       }
 
       reportTableBodyEl.innerHTML = filtered.map((rec, idx) => {
-        const badge = rec.Mucdotiemnang === 'Cao'
-          ? 'bg-emerald-100 text-emerald-800'
-          : (rec.Mucdotiemnang === 'Trung bình' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700');
-
         const links = [
-          rec.Anh ? `<a href="${escapeAttr(rec.Anh)}" target="_blank" class="text-blue-600 underline">Ảnh</a>` : '',
-          (rec.ToadoGPS && rec.ToadoGPS !== 'N/A') ? `<a href="${escapeAttr(rec.ToadoGPS)}" target="_blank" class="text-blue-600 underline">GPS</a>` : ''
-        ].filter(Boolean).join(' · ') || '-';
+          rec.Anh ? `<a href="${escapeAttr(rec.Anh)}" target="_blank" class="text-blue-600 underline font-semibold">Ảnh</a>` : '',
+          (rec.ToadoGPS && rec.ToadoGPS !== 'N/A') ? `<a href="${escapeAttr(rec.ToadoGPS)}" target="_blank" class="text-blue-600 underline font-semibold">GPS</a>` : ''
+        ].filter(Boolean).join(' · ');
 
         return `
           <tr class="hover:bg-slate-50 align-top">
-            <td class="px-3 py-2.5 whitespace-nowrap">${escapeHtml(formatDisplayCheckin(rec.Ngaycheckin))}</td>
-            <td class="px-3 py-2.5 font-medium whitespace-nowrap">${escapeHtml(rec.Nhanvienphutrach || '')}</td>
-            <td class="px-3 py-2.5 font-semibold text-slate-900">${escapeHtml(rec.Tenkhachhang || '')}</td>
-            <td class="px-3 py-2.5">
-              <div>${escapeHtml(rec.Nguoilienhe || '')}</div>
-              <div class="text-slate-600">ĐT: ${escapeHtml(String(rec.SDT || '').replace(/^'/, ''))}</div>
-              <div class="text-slate-600">Zalo: ${escapeHtml(String(rec.Zalo || '').replace(/^'/, ''))}</div>
+            <td class="px-3 py-3">
+              <div class="font-semibold">${escapeHtml(formatDisplayCheckin(rec.Ngaycheckin))}</div>
+              <div class="text-slate-600 mt-1">NV: <span class="font-semibold text-slate-800">${escapeHtml(rec.Nhanvienphutrach || '')}</span></div>
             </td>
-            <td class="px-3 py-2.5">${escapeHtml(rec.Loaicuahang || '')}</td>
-            <td class="px-3 py-2.5">${escapeHtml(rec.Sanphamquantam || '')}</td>
-            <td class="px-3 py-2.5">${escapeHtml(rec.Sanphamdamua || '')}</td>
-            <td class="px-3 py-2.5">${escapeHtml(rec.Sanphamdangdung || '')}</td>
-            <td class="px-3 py-2.5">${escapeHtml(rec.LyDoChuaDung || '')}</td>
-            <td class="px-3 py-2.5 whitespace-nowrap">${escapeHtml(formatDisplayDateOnly(rec.Ngayhenchamsoclai))}</td>
-            <td class="px-3 py-2.5 whitespace-nowrap">
-              <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${badge}">${escapeHtml(rec.Mucdotiemnang || '')}</span>
+            <td class="px-3 py-3">
+              <div class="font-bold text-slate-900 text-base">${escapeHtml(rec.Tenkhachhang || '')}</div>
+              <div class="text-slate-600 mt-1">${escapeHtml(rec.Diachi || '')}</div>
             </td>
-            <td class="px-3 py-2.5 min-w-[200px]">
-              <div class="text-slate-700"><span class="font-semibold">ĐC:</span> ${escapeHtml(rec.Diachi || '')}</div>
-              <div class="text-slate-600 mt-0.5"><span class="font-semibold">GC:</span> ${escapeHtml(rec.Ghichu || '')}</div>
+            <td class="px-3 py-3">
+              <div class="font-semibold">${escapeHtml(rec.Nguoilienhe || '')}</div>
+              <div class="text-slate-700">ĐT: ${escapeHtml(cleanPhone(rec.SDT))}</div>
+              <div class="text-slate-700">Zalo: ${escapeHtml(cleanPhone(rec.Zalo))}</div>
             </td>
-            <td class="px-3 py-2.5 whitespace-nowrap">${links}</td>
-            <td class="px-3 py-2.5 text-center whitespace-nowrap">
+            <td class="px-3 py-3">${escapeHtml(rec.Loaicuahang || '')}</td>
+            <td class="px-3 py-3 space-y-1">
+              <div><span class="font-semibold">Quan tâm:</span> ${escapeHtml(rec.Sanphamquantam || '')}</div>
+              <div><span class="font-semibold">Đã mua:</span> ${escapeHtml(rec.Sanphamdamua || '')}</div>
+              <div><span class="font-semibold">Đang dùng:</span> ${escapeHtml(rec.Sanphamdangdung || '')}</div>
+            </td>
+            <td class="px-3 py-3 space-y-1">
+              <div>${escapeHtml(rec.LyDoChuaDung || '')}</div>
+              <div class="font-semibold text-blue-800">Hẹn: ${escapeHtml(formatDisplayDateOnly(rec.Ngayhenchamsoclai))}</div>
+            </td>
+            <td class="px-3 py-3"><span class="badge ${badgeClass(rec.Mucdotiemnang)}">${escapeHtml(rec.Mucdotiemnang || '')}</span></td>
+            <td class="px-3 py-3 text-slate-700">${escapeHtml(rec.Ghichu || '')}</td>
+            <td class="px-3 py-3 text-center space-y-2">
               <button type="button" onclick="openEditModalByIndex(${idx})"
-                class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold border border-blue-200">
-                Sửa
-              </button>
+                class="w-full px-2 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200">Sửa</button>
+              <div>${links || '-'}</div>
             </td>
           </tr>
         `;
       }).join('');
 
       reportCardListEl.innerHTML = filtered.map((rec, idx) => {
-        const badge = rec.Mucdotiemnang === 'Cao'
-          ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-          : (rec.Mucdotiemnang === 'Trung bình' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-slate-100 text-slate-700 border-slate-200');
-
         return `
-          <div class="border border-slate-200 rounded-xl p-3.5 bg-white shadow-sm space-y-2">
+          <div class="border border-slate-200 rounded-xl p-4 bg-white shadow-sm space-y-3">
             <div class="flex items-start justify-between gap-2">
-              <div>
-                <div class="font-bold text-sm text-slate-900">${escapeHtml(rec.Tenkhachhang || '')}</div>
-                <div class="text-xs text-slate-500">${escapeHtml(formatDisplayCheckin(rec.Ngaycheckin))} · NV: <span class="font-medium text-slate-700">${escapeHtml(rec.Nhanvienphutrach || '')}</span></div>
+              <div class="min-w-0">
+                <div class="font-extrabold text-lg text-slate-900 leading-snug">${escapeHtml(rec.Tenkhachhang || '')}</div>
+                <div class="text-base text-slate-600">${escapeHtml(formatDisplayCheckin(rec.Ngaycheckin))}</div>
+                <div class="text-base text-slate-600">NV: <span class="font-semibold text-slate-800">${escapeHtml(rec.Nhanvienphutrach || '')}</span></div>
               </div>
-              <div class="flex items-center gap-1.5 shrink-0">
-                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold border ${badge}">${escapeHtml(rec.Mucdotiemnang || '')}</span>
-                <button type="button" onclick="openEditModalByIndex(${idx})"
-                  class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold">
-                  Sửa
-                </button>
-              </div>
+              <span class="badge shrink-0 ${badgeClass(rec.Mucdotiemnang)}">${escapeHtml(rec.Mucdotiemnang || '')}</span>
             </div>
-            <div class="text-xs text-slate-700 space-y-1">
-              <div><span class="font-semibold">Loại cửa hàng:</span> ${escapeHtml(rec.Loaicuahang || '')}</div>
-              <div><span class="font-semibold">Liên hệ:</span> ${escapeHtml(rec.Nguoilienhe || '')} | SĐT: ${escapeHtml(String(rec.SDT || '').replace(/^'/, ''))} | Zalo: ${escapeHtml(String(rec.Zalo || '').replace(/^'/, ''))}</div>
-              <div><span class="font-semibold">Địa chỉ:</span> ${escapeHtml(rec.Diachi || '')}</div>
-              <div><span class="font-semibold">SP quan tâm:</span> ${escapeHtml(rec.Sanphamquantam || '')}</div>
-              <div><span class="font-semibold">SP đã mua:</span> ${escapeHtml(rec.Sanphamdamua || '')}</div>
-              <div><span class="font-semibold">SP đang dùng:</span> ${escapeHtml(rec.Sanphamdangdung || '')}</div>
-              <div><span class="font-semibold">Lý do chưa dùng:</span> ${escapeHtml(rec.LyDoChuaDung || '')}</div>
-              <div><span class="font-semibold">Ngày hẹn chăm sóc lại:</span> ${escapeHtml(formatDisplayDateOnly(rec.Ngayhenchamsoclai))}</div>
-              <div><span class="font-semibold">Ghi chú:</span> ${escapeHtml(rec.Ghichu || '')}</div>
+            <div class="text-base text-slate-800 space-y-1.5 break-words">
+              <div><span class="font-bold">Loại cửa hàng:</span> ${escapeHtml(rec.Loaicuahang || '')}</div>
+              <div><span class="font-bold">Liên hệ:</span> ${escapeHtml(rec.Nguoilienhe || '')}</div>
+              <div><span class="font-bold">SĐT:</span> ${escapeHtml(cleanPhone(rec.SDT))} &nbsp;|&nbsp; <span class="font-bold">Zalo:</span> ${escapeHtml(cleanPhone(rec.Zalo))}</div>
+              <div><span class="font-bold">Địa chỉ:</span> ${escapeHtml(rec.Diachi || '')}</div>
+              <div><span class="font-bold">SP quan tâm:</span> ${escapeHtml(rec.Sanphamquantam || '')}</div>
+              <div><span class="font-bold">SP đã mua:</span> ${escapeHtml(rec.Sanphamdamua || '')}</div>
+              <div><span class="font-bold">SP đang dùng:</span> ${escapeHtml(rec.Sanphamdangdung || '')}</div>
+              <div><span class="font-bold">Lý do chưa dùng:</span> ${escapeHtml(rec.LyDoChuaDung || '')}</div>
+              <div><span class="font-bold">Hẹn chăm sóc lại:</span> <span class="font-semibold text-blue-800">${escapeHtml(formatDisplayDateOnly(rec.Ngayhenchamsoclai))}</span></div>
+              <div><span class="font-bold">Ghi chú:</span> ${escapeHtml(rec.Ghichu || '')}</div>
             </div>
-            <div class="flex items-center gap-4 pt-1 border-t border-slate-100 text-xs">
-              ${rec.Anh ? `<a href="${escapeAttr(rec.Anh)}" target="_blank" class="text-blue-600 underline">Xem ảnh</a>` : ''}
-              ${(rec.ToadoGPS && rec.ToadoGPS !== 'N/A') ? `<a href="${escapeAttr(rec.ToadoGPS)}" target="_blank" class="text-blue-600 underline">Xem GPS</a>` : ''}
+            <div class="flex items-center gap-3 pt-3 border-t border-slate-100 text-base">
+              <button type="button" onclick="openEditModalByIndex(${idx})"
+                class="px-4 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200">Sửa</button>
+              ${rec.Anh ? `<a href="${escapeAttr(rec.Anh)}" target="_blank" class="text-blue-600 underline font-semibold">Xem ảnh</a>` : ''}
+              ${(rec.ToadoGPS && rec.ToadoGPS !== 'N/A') ? `<a href="${escapeAttr(rec.ToadoGPS)}" target="_blank" class="text-blue-600 underline font-semibold">Xem GPS</a>` : ''}
             </div>
           </div>
         `;
       }).join('');
+      updateStickyOffsets();
     }
 
+    // ==================== TẢI FILE EXCEL ====================
+    document.getElementById('btnExportExcel').addEventListener('click', exportExcel);
+
+    function exportExcel() {
+      const rows = window.__currentFilteredRecords || [];
+      if (!rows.length) {
+        alert('Không có dữ liệu để tải. Vui lòng kiểm tra lại bộ lọc.');
+        return;
+      }
+
+      const headers = [
+        'Ngày check-in', 'NV phụ trách', 'Tên khách hàng', 'Người liên hệ', 'SĐT', 'Zalo',
+        'Loại cửa hàng', 'SP quan tâm', 'SP đã mua', 'SP đang dùng', 'Lý do chưa dùng',
+        'Ngày hẹn chăm sóc lại', 'Mức độ tiềm năng', 'Địa chỉ', 'Ghi chú', 'Link ảnh', 'Link GPS'
+      ];
+
+      const aoa = [headers].concat(rows.map(r => [
+        formatDisplayCheckin(r.Ngaycheckin),
+        r.Nhanvienphutrach || '',
+        r.Tenkhachhang || '',
+        r.Nguoilienhe || '',
+        cleanPhone(r.SDT),
+        cleanPhone(r.Zalo),
+        r.Loaicuahang || '',
+        r.Sanphamquantam || '',
+        r.Sanphamdamua || '',
+        r.Sanphamdangdung || '',
+        r.LyDoChuaDung || '',
+        formatDisplayDateOnly(r.Ngayhenchamsoclai),
+        r.Mucdotiemnang || '',
+        r.Diachi || '',
+        r.Ghichu || '',
+        r.Anh || '',
+        (r.ToadoGPS && r.ToadoGPS !== 'N/A') ? r.ToadoGPS : ''
+      ]));
+
+      let label = 'TatCa';
+      if (currentPeriod === 'day') label = filterDateEl.value || 'Ngay';
+      else if (currentPeriod === 'month') label = filterMonthEl.value || 'Thang';
+      else if (currentPeriod === 'year') label = 'Nam_' + (filterYearEl.value || '');
+      const fileName = `KhaoSat_${label}`;
+
+      if (window.XLSX) {
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
+        ws['!cols'] = [18, 18, 28, 18, 14, 14, 24, 24, 22, 22, 30, 16, 14, 40, 40, 30, 30].map(w => ({ wch: w }));
+        ws['!autofilter'] = { ref: ws['!ref'] };
+        ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Khảo sát');
+        XLSX.writeFile(wb, fileName + '.xlsx');
+      } else {
+        // Dự phòng: tải CSV (mở được bằng Excel) nếu thư viện Excel không tải được
+        const csv = '\ufeff' + aoa.map(row => row.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(a.href);
+      }
+    }
+
+    // ==================== MODAL SỬA ====================
     const editModal = document.getElementById('editModal');
     const editLoaiSelect = document.getElementById('editLoaiCuaHangSelect');
     const editLoaiKhacBox = document.getElementById('editLoaiCuaHangKhacBox');
@@ -1132,8 +1145,8 @@
       document.getElementById('editTenKH').value = rec.Tenkhachhang || '';
       document.getElementById('editDiaChi').value = rec.Diachi || '';
       document.getElementById('editNguoiLienHe').value = rec.Nguoilienhe || '';
-      document.getElementById('editSDT').value = String(rec.SDT || '').replace(/^'/, '');
-      document.getElementById('editZalo').value = String(rec.Zalo || '').replace(/^'/, '');
+      document.getElementById('editSDT').value = cleanPhone(rec.SDT);
+      document.getElementById('editZalo').value = cleanPhone(rec.Zalo);
 
       const lhVal = String(rec.Loaicuahang || '').trim();
       if (PRESET_TYPES.includes(lhVal)) {
