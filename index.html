@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <!-- ==================== VIEW 1: FORM KHẢO SÁT (BẮT BUỘC TẤT CẢ MỤC) ==================== -->
+    <!-- ==================== VIEW 1: FORM KHẢO SÁT ==================== -->
     <div id="surveyView" class="p-4 sm:p-6">
       <form id="surveyForm" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -279,7 +279,6 @@
 
       <div id="reportStatus" class="text-xs text-slate-600">Đang tải dữ liệu báo cáo...</div>
 
-      <!-- Bảng rộng cho máy tính -->
       <div class="hidden lg:block overflow-x-auto border border-slate-200 rounded-xl">
         <table class="min-w-full text-xs text-left border-collapse">
           <thead class="bg-slate-800 text-white">
@@ -304,7 +303,6 @@
         </table>
       </div>
 
-      <!-- Danh sách thẻ cho màn hình nhỏ -->
       <div id="reportCardList" class="lg:hidden space-y-3"></div>
     </div>
   </div>
@@ -439,7 +437,7 @@
   </div>
 
   <script>
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwlOjiAFJ6rV2KtiJO_FcBqruLr_VjSy4bjYJmL2DBBhc6U3r79eoRHqSzpxpmWNqESeA/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyGMl5f0YsBPfWn7aEvQHSi6W2rnx8F-38D2ylJBAv25MZ40-UEIflbzVe8z8Zd9j3AIg/exec';
 
     const PRESET_TYPES = [
       'Gara sửa chữa ô tô',
@@ -511,13 +509,24 @@
     let allRecords = [];
     let currentPeriod = 'day';
 
-    const todayObj = new Date();
-    const yyyy = todayObj.getFullYear();
-    const mm = String(todayObj.getMonth() + 1).padStart(2, '0');
-    const dd = String(todayObj.getDate()).padStart(2, '0');
-    filterDateEl.value = `${yyyy}-${mm}-${dd}`;
-    filterMonthEl.value = `${yyyy}-${mm}`;
-    filterYearEl.value = String(yyyy);
+    function getVNDateParts(dateObj = new Date()) {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).formatToParts(dateObj);
+      return {
+        yyyy: parts.find(p => p.type === 'year').value,
+        mm: parts.find(p => p.type === 'month').value,
+        dd: parts.find(p => p.type === 'day').value
+      };
+    }
+
+    const vnToday = getVNDateParts();
+    filterDateEl.value = `${vnToday.yyyy}-${vnToday.mm}-${vnToday.dd}`;
+    filterMonthEl.value = `${vnToday.yyyy}-${vnToday.mm}`;
+    filterYearEl.value = vnToday.yyyy;
 
     const savedNV = localStorage.getItem('ks_nhanVien');
     if (savedNV) nhanVienEl.value = savedNV;
@@ -734,7 +743,6 @@
       });
     });
 
-    // Kiểm tra bắt buộc điền tất cả các mục
     function validateAllRequiredFields() {
       const checks = [
         [validateMeaningfulText(nhanVienEl.value), 'Vui lòng nhập đầy đủ Nhân viên phụ trách.'],
@@ -887,15 +895,73 @@
           reportStatusEl.textContent = 'Lỗi tải dữ liệu: ' + (json.message || '');
         }
       } catch (err) {
-        reportStatusEl.textContent = 'Không tải được danh sách báo cáo. Hãy kiểm tra: (1) Đã Deploy bản mới của Apps Script chưa, (2) Quyền "Who has access: Anyone".';
+        reportStatusEl.textContent = 'Không tải được danh sách báo cáo. Kiểm tra Deploy Web App và quyền "Who has access: Anyone".';
       }
     }
 
     function getRecordDateISO(rec) {
-      if (rec.NgayISO) return String(rec.NgayISO).slice(0, 10);
-      const match = String(rec.Ngaycheckin || '').match(/(\d{2})\/(\d{2})\/(\d{4})/);
-      if (match) return `${match[3]}-${match[2]}-${match[1]}`;
+      const raw = String(rec.NgayISO || rec.Ngaycheckin || '').trim();
+      const utcMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?Z$/);
+      if (utcMatch) {
+        const dt = new Date(Date.UTC(
+          Number(utcMatch[1]),
+          Number(utcMatch[2]) - 1,
+          Number(utcMatch[3]),
+          Number(utcMatch[4]),
+          Number(utcMatch[5]),
+          Number(utcMatch[6])
+        ));
+        const parts = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Ho_Chi_Minh',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).formatToParts(dt);
+        return `${parts.find(p => p.type === 'year').value}-${parts.find(p => p.type === 'month').value}-${parts.find(p => p.type === 'day').value}`;
+      }
+      const isoMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (isoMatch) return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
+      const vnMatch = raw.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if (vnMatch) return `${vnMatch[3]}-${vnMatch[2]}-${vnMatch[1]}`;
       return '';
+    }
+
+    function formatDisplayCheckin(raw) {
+      const str = String(raw || '').trim();
+      const utcMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?Z$/);
+      if (utcMatch) {
+        const dt = new Date(Date.UTC(
+          Number(utcMatch[1]),
+          Number(utcMatch[2]) - 1,
+          Number(utcMatch[3]),
+          Number(utcMatch[4]),
+          Number(utcMatch[5]),
+          Number(utcMatch[6])
+        ));
+        return dt.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+      }
+      return str;
+    }
+
+    function formatDisplayDateOnly(raw) {
+      const str = String(raw || '').trim();
+      if (!str) return '';
+      const utcMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?Z$/);
+      if (utcMatch) {
+        const dt = new Date(Date.UTC(
+          Number(utcMatch[1]),
+          Number(utcMatch[2]) - 1,
+          Number(utcMatch[3]),
+          Number(utcMatch[4]),
+          Number(utcMatch[5]),
+          Number(utcMatch[6])
+        ));
+        const p = getVNDateParts(dt);
+        return `${p.dd}/${p.mm}/${p.yyyy}`;
+      }
+      const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (isoMatch) return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+      return str;
     }
 
     function renderFilteredReport() {
@@ -939,7 +1005,6 @@
         return;
       }
 
-      // Render bảng cho máy tính
       reportTableBodyEl.innerHTML = filtered.map((rec, idx) => {
         const badge = rec.Mucdotiemnang === 'Cao'
           ? 'bg-emerald-100 text-emerald-800'
@@ -952,20 +1017,20 @@
 
         return `
           <tr class="hover:bg-slate-50 align-top">
-            <td class="px-3 py-2.5 whitespace-nowrap">${escapeHtml(rec.Ngaycheckin || '')}</td>
+            <td class="px-3 py-2.5 whitespace-nowrap">${escapeHtml(formatDisplayCheckin(rec.Ngaycheckin))}</td>
             <td class="px-3 py-2.5 font-medium whitespace-nowrap">${escapeHtml(rec.Nhanvienphutrach || '')}</td>
             <td class="px-3 py-2.5 font-semibold text-slate-900">${escapeHtml(rec.Tenkhachhang || '')}</td>
             <td class="px-3 py-2.5">
               <div>${escapeHtml(rec.Nguoilienhe || '')}</div>
-              <div class="text-slate-600">ĐT: ${escapeHtml(rec.SDT || '')}</div>
-              <div class="text-slate-600">Zalo: ${escapeHtml(rec.Zalo || '')}</div>
+              <div class="text-slate-600">ĐT: ${escapeHtml(String(rec.SDT || '').replace(/^'/, ''))}</div>
+              <div class="text-slate-600">Zalo: ${escapeHtml(String(rec.Zalo || '').replace(/^'/, ''))}</div>
             </td>
             <td class="px-3 py-2.5">${escapeHtml(rec.Loaicuahang || '')}</td>
             <td class="px-3 py-2.5">${escapeHtml(rec.Sanphamquantam || '')}</td>
             <td class="px-3 py-2.5">${escapeHtml(rec.Sanphamdamua || '')}</td>
             <td class="px-3 py-2.5">${escapeHtml(rec.Sanphamdangdung || '')}</td>
             <td class="px-3 py-2.5">${escapeHtml(rec.LyDoChuaDung || '')}</td>
-            <td class="px-3 py-2.5 whitespace-nowrap">${escapeHtml(rec.Ngayhenchamsoclai || '')}</td>
+            <td class="px-3 py-2.5 whitespace-nowrap">${escapeHtml(formatDisplayDateOnly(rec.Ngayhenchamsoclai))}</td>
             <td class="px-3 py-2.5 whitespace-nowrap">
               <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${badge}">${escapeHtml(rec.Mucdotiemnang || '')}</span>
             </td>
@@ -984,7 +1049,6 @@
         `;
       }).join('');
 
-      // Render thẻ cho màn hình nhỏ
       reportCardListEl.innerHTML = filtered.map((rec, idx) => {
         const badge = rec.Mucdotiemnang === 'Cao'
           ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
@@ -995,7 +1059,7 @@
             <div class="flex items-start justify-between gap-2">
               <div>
                 <div class="font-bold text-sm text-slate-900">${escapeHtml(rec.Tenkhachhang || '')}</div>
-                <div class="text-xs text-slate-500">${escapeHtml(rec.Ngaycheckin || '')} · NV: <span class="font-medium text-slate-700">${escapeHtml(rec.Nhanvienphutrach || '')}</span></div>
+                <div class="text-xs text-slate-500">${escapeHtml(formatDisplayCheckin(rec.Ngaycheckin))} · NV: <span class="font-medium text-slate-700">${escapeHtml(rec.Nhanvienphutrach || '')}</span></div>
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
                 <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold border ${badge}">${escapeHtml(rec.Mucdotiemnang || '')}</span>
@@ -1007,13 +1071,13 @@
             </div>
             <div class="text-xs text-slate-700 space-y-1">
               <div><span class="font-semibold">Loại cửa hàng:</span> ${escapeHtml(rec.Loaicuahang || '')}</div>
-              <div><span class="font-semibold">Liên hệ:</span> ${escapeHtml(rec.Nguoilienhe || '')} | SĐT: ${escapeHtml(rec.SDT || '')} | Zalo: ${escapeHtml(rec.Zalo || '')}</div>
+              <div><span class="font-semibold">Liên hệ:</span> ${escapeHtml(rec.Nguoilienhe || '')} | SĐT: ${escapeHtml(String(rec.SDT || '').replace(/^'/, ''))} | Zalo: ${escapeHtml(String(rec.Zalo || '').replace(/^'/, ''))}</div>
               <div><span class="font-semibold">Địa chỉ:</span> ${escapeHtml(rec.Diachi || '')}</div>
               <div><span class="font-semibold">SP quan tâm:</span> ${escapeHtml(rec.Sanphamquantam || '')}</div>
               <div><span class="font-semibold">SP đã mua:</span> ${escapeHtml(rec.Sanphamdamua || '')}</div>
               <div><span class="font-semibold">SP đang dùng:</span> ${escapeHtml(rec.Sanphamdangdung || '')}</div>
               <div><span class="font-semibold">Lý do chưa dùng:</span> ${escapeHtml(rec.LyDoChuaDung || '')}</div>
-              <div><span class="font-semibold">Ngày hẹn chăm sóc lại:</span> ${escapeHtml(rec.Ngayhenchamsoclai || '')}</div>
+              <div><span class="font-semibold">Ngày hẹn chăm sóc lại:</span> ${escapeHtml(formatDisplayDateOnly(rec.Ngayhenchamsoclai))}</div>
               <div><span class="font-semibold">Ghi chú:</span> ${escapeHtml(rec.Ghichu || '')}</div>
             </div>
             <div class="flex items-center gap-4 pt-1 border-t border-slate-100 text-xs">
@@ -1025,7 +1089,6 @@
       }).join('');
     }
 
-    // Modal sửa dữ liệu
     const editModal = document.getElementById('editModal');
     const editLoaiSelect = document.getElementById('editLoaiCuaHangSelect');
     const editLoaiKhacBox = document.getElementById('editLoaiCuaHangKhacBox');
@@ -1069,8 +1132,8 @@
       document.getElementById('editTenKH').value = rec.Tenkhachhang || '';
       document.getElementById('editDiaChi').value = rec.Diachi || '';
       document.getElementById('editNguoiLienHe').value = rec.Nguoilienhe || '';
-      document.getElementById('editSDT').value = rec.SDT || '';
-      document.getElementById('editZalo').value = rec.Zalo || '';
+      document.getElementById('editSDT').value = String(rec.SDT || '').replace(/^'/, '');
+      document.getElementById('editZalo').value = String(rec.Zalo || '').replace(/^'/, '');
 
       const lhVal = String(rec.Loaicuahang || '').trim();
       if (PRESET_TYPES.includes(lhVal)) {
@@ -1102,7 +1165,7 @@
         editLyDoKhacInput.value = reasonVal;
       }
 
-      document.getElementById('editNgayHen').value = rec.Ngayhenchamsoclai ? String(rec.Ngayhenchamsoclai).slice(0, 10) : '';
+      document.getElementById('editNgayHen').value = getRecordDateISO({ NgayISO: rec.Ngayhenchamsoclai });
       document.getElementById('editMucDo').value = rec.Mucdotiemnang || 'Cao';
       document.getElementById('editGhiChu').value = rec.Ghichu || '';
 
