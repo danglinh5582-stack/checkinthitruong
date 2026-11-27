@@ -1,1 +1,368 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Khảo Sát Thị Trường - Check-in Điểm Bán</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-10">
+  <div class="max-w-md mx-auto bg-white min-h-screen sm:min-h-0 sm:my-6 sm:rounded-2xl shadow-md overflow-hidden">
+    <!-- Header -->
+    <div class="bg-blue-700 text-white px-5 py-4">
+      <h1 class="text-lg font-bold tracking-tight">Khảo Sát Khách Hàng Tiềm Năng</h1>
+      <p class="text-xs text-blue-100 mt-0.5">Ghi nhận thực địa điểm chưa sử dụng sản phẩm</p>
+    </div>
 
+    <form id="surveyForm" class="p-5 space-y-4">
+      <!-- Nhân viên -->
+      <div>
+        <label class="block text-sm font-semibold mb-1">Nhân viên khảo sát <span class="text-red-500">*</span></label>
+        <input type="text" id="nhanVien" required placeholder="Nhập họ tên nhân viên..."
+          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+      <!-- Tên cửa hàng -->
+      <div>
+        <label class="block text-sm font-semibold mb-1">Tên cửa hàng / cơ sở <span class="text-red-500">*</span></label>
+        <input type="text" id="tenCuaHang" required placeholder="VD: Tạp hóa Minh Anh, Cửa hàng Hùng..."
+          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+      <!-- Địa chỉ & GPS -->
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-600 uppercase">Vị trí GPS & Địa chỉ</span>
+          <button type="button" id="btnGetLocation"
+            class="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-md font-medium active:bg-blue-100">
+            Lấy lại GPS
+          </button>
+        </div>
+        <div id="gpsStatus" class="text-xs text-slate-500">Đang lấy tọa độ GPS...</div>
+        <input type="text" id="diaChi" placeholder="Địa chỉ tự động hoặc nhập/sửa nhanh..."
+          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input type="hidden" id="lat" />
+        <input type="hidden" id="lng" />
+      </div>
+
+      <!-- Ảnh chụp thực tế -->
+      <div>
+        <label class="block text-sm font-semibold mb-1">Ảnh chụp thực tế (tự đóng dấu) <span class="text-red-500">*</span></label>
+        <label class="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 bg-blue-50/50 hover:bg-blue-50 rounded-xl p-4 cursor-pointer transition">
+          <span class="text-sm font-medium text-blue-700">Chạm để mở Camera chụp ảnh</span>
+          <span class="text-xs text-slate-500 mt-1">Ảnh sẽ tự chèn ngày giờ, GPS & tự nén</span>
+          <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" />
+        </label>
+
+        <div id="previewBox" class="mt-3 hidden">
+          <img id="previewImg" alt="Ảnh xem trước" class="w-full rounded-xl border border-slate-200 shadow-sm" />
+          <p id="imgInfo" class="text-[11px] text-slate-500 mt-1"></p>
+        </div>
+      </div>
+
+      <!-- Người liên hệ & SĐT -->
+      <div>
+        <label class="block text-sm font-semibold mb-1">Người liên hệ / SĐT</label>
+        <input type="text" id="lienHe" placeholder="VD: Anh Hùng - 0912xxxxxx"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+      <!-- Loại hình cửa hàng -->
+      <div>
+        <label class="block text-sm font-semibold mb-1">Loại hình cửa hàng</label>
+        <select id="loaiHinh"
+          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">-- Chọn loại hình --</option>
+          <option value="Tạp hóa / Bán lẻ">Tạp hóa / Bán lẻ</option>
+          <option value="Đại lý / Nhà phân phối">Đại lý / Nhà phân phối</option>
+          <option value="Cửa hàng chuyên doanh">Cửa hàng chuyên doanh</option>
+          <option value="Xưởng / Cơ sở sản xuất">Xưởng / Cơ sở sản xuất</option>
+          <option value="Khác">Khác</option>
+        </select>
+      </div>
+
+      <!-- Sản phẩm đang dùng / đối thủ -->
+      <div>
+        <label class="block text-sm font-semibold mb-1">Sản phẩm đang bán / đang dùng</label>
+        <input type="text" id="sanPhamDangDung" placeholder="VD: Đang bán hàng hãng X, dùng sản phẩm Y..."
+          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+      <!-- Lý do chưa dùng sản phẩm -->
+      <div>
+        <label class="block text-sm font-semibold mb-1">Lý do chưa dùng sản phẩm công ty</label>
+        <select id="lyDoChuaDung"
+          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">-- Chọn lý do chính --</option>
+          <option value="Đang nhập hàng NCC khác">Đang nhập hàng NCC khác</option>
+          <option value="Giá / chiết khấu chưa phù hợp">Giá / chiết khấu chưa phù hợp</option>
+          <option value="Chưa biết đến thương hiệu">Chưa biết đến thương hiệu</option>
+          <option value="Tệp khách chưa phù hợp">Tệp khách chưa phù hợp</option>
+          <option value="Chưa gặp người quyết định">Chưa gặp người quyết định</option>
+          <option value="Lý do khác">Lý do khác</option>
+        </select>
+      </div>
+
+      <!-- Mức độ tiềm năng -->
+      <div>
+        <label class="block text-sm font-semibold mb-1">Mức độ tiềm năng <span class="text-red-500">*</span></label>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" data-val="Cao"
+            class="pot-btn py-2 px-2 rounded-lg border text-xs font-semibold border-slate-300 text-slate-700">
+            Cao
+          </button>
+          <button type="button" data-val="Trung bình"
+            class="pot-btn py-2 px-2 rounded-lg border text-xs font-semibold border-slate-300 text-slate-700">
+            Trung bình
+          </button>
+          <button type="button" data-val="Thấp"
+            class="pot-btn py-2 px-2 rounded-lg border text-xs font-semibold border-slate-300 text-slate-700">
+            Thấp
+          </button>
+        </div>
+        <input type="hidden" id="mucDoTiemNang" required />
+      </div>
+
+      <!-- Ghi chú -->
+      <div>
+        <label class="block text-sm font-semibold mb-1">Ghi chú tình hình khách hàng</label>
+        <textarea id="ghiChu" rows="3" placeholder="Ghi nhanh nhu cầu, thời điểm hẹn quay lại, lưu ý cho sale..."
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+      </div>
+
+      <!-- Nút gửi -->
+      <button type="submit" id="btnSubmit"
+        class="w-full bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-semibold py-3 rounded-xl shadow transition disabled:opacity-50">
+        Gửi Báo Cáo Khảo Sát
+      </button>
+
+      <div id="resultMsg" class="hidden text-sm rounded-xl p-3"></div>
+    </form>
+  </div>
+
+  <script>
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwMfKE9E7wYr3Mi4QBnqtJnDM1xJ1kjFtSNS8nEjmT_DbefyTQqbbGB0J-04WFqpB4bJw/exec';
+
+    const nhanVienEl = document.getElementById('nhanVien');
+    const tenCuaHangEl = document.getElementById('tenCuaHang');
+    const diaChiEl = document.getElementById('diaChi');
+    const latEl = document.getElementById('lat');
+    const lngEl = document.getElementById('lng');
+    const gpsStatusEl = document.getElementById('gpsStatus');
+    const cameraInputEl = document.getElementById('cameraInput');
+    const previewBoxEl = document.getElementById('previewBox');
+    const previewImgEl = document.getElementById('previewImg');
+    const imgInfoEl = document.getElementById('imgInfo');
+    const mucDoEl = document.getElementById('mucDoTiemNang');
+    const btnSubmitEl = document.getElementById('btnSubmit');
+    const resultMsgEl = document.getElementById('resultMsg');
+
+    let stampedDataUrl = '';
+    let rawImageDataUrl = '';
+
+    // Ghi nhớ tên nhân viên lần gần nhất
+    const savedNV = localStorage.getItem('ks_nhanVien');
+    if (savedNV) nhanVienEl.value = savedNV;
+
+    // Chọn mức độ tiềm năng
+    document.querySelectorAll('.pot-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pot-btn').forEach(b => {
+          b.className = 'pot-btn py-2 px-2 rounded-lg border text-xs font-semibold border-slate-300 text-slate-700';
+        });
+        btn.className = 'pot-btn py-2 px-2 rounded-lg border text-xs font-semibold bg-blue-600 border-blue-600 text-white';
+        mucDoEl.value = btn.dataset.val;
+      });
+    });
+
+    // Lấy GPS + Reverse Geocoding (OpenStreetMap Nominatim)
+    async function fetchLocation() {
+      gpsStatusEl.textContent = 'Đang lấy tọa độ GPS...';
+      if (!navigator.geolocation) {
+        gpsStatusEl.textContent = 'Trình duyệt không hỗ trợ GPS. Vui lòng nhập địa chỉ tay.';
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude.toFixed(6);
+        const lng = pos.coords.longitude.toFixed(6);
+        latEl.value = lat;
+        lngEl.value = lng;
+        gpsStatusEl.textContent = `GPS: ${lat}, ${lng} (±${Math.round(pos.coords.accuracy)}m)`;
+
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=vi`);
+          const json = await res.json();
+          if (json && json.display_name && !diaChiEl.value.trim()) {
+            diaChiEl.value = json.display_name;
+          }
+        } catch (e) {
+          // Không lấy được địa chỉ chữ vẫn giữ tọa độ GPS
+        }
+
+        if (rawImageDataUrl) {
+          await renderStampedImage(rawImageDataUrl);
+        }
+      }, () => {
+        gpsStatusEl.textContent = 'Chưa cấp quyền GPS hoặc tín hiệu yếu. Bạn vẫn có thể nhập địa chỉ tay.';
+      }, { enableHighAccuracy: true, timeout: 10000 });
+    }
+
+    document.getElementById('btnGetLocation').addEventListener('click', fetchLocation);
+    fetchLocation();
+
+    // Đóng dấu watermark & nén ảnh
+    function renderStampedImage(dataUrl) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxW = 1280;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxW) {
+            h = Math.round((h * maxW) / w);
+            w = maxW;
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+
+          const now = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+          const nv = nhanVienEl.value.trim() || 'NV';
+          const shop = tenCuaHangEl.value.trim() || 'Điểm khảo sát';
+          const gpsText = (latEl.value && lngEl.value) ? `GPS: ${latEl.value}, ${lngEl.value}` : 'GPS: N/A';
+          const addrText = diaChiEl.value.trim() ? diaChiEl.value.trim().slice(0, 80) : '';
+
+          const lines = [
+            `${now} | NV: ${nv}`,
+            `KH: ${shop}`,
+            addrText ? `${gpsText} | ${addrText}` : gpsText
+          ];
+
+          const fontSize = Math.max(16, Math.round(w * 0.024));
+          const lineHeight = Math.round(fontSize * 1.35);
+          const padX = Math.round(fontSize * 0.8);
+          const padY = Math.round(fontSize * 0.6);
+          const boxH = lines.length * lineHeight + padY * 2;
+          const boxY = h - boxH - Math.round(w * 0.02);
+          const boxX = Math.round(w * 0.02);
+          const boxW = w - boxX * 2;
+
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.72)';
+          ctx.fillRect(boxX, boxY, boxW, boxH);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = `600 ${fontSize}px sans-serif`;
+          lines.forEach((line, idx) => {
+            ctx.fillText(line, boxX + padX, boxY + padY + (idx + 0.8) * lineHeight, boxW - padX * 2);
+          });
+
+          stampedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+          previewImgEl.src = stampedDataUrl;
+          previewBoxEl.classList.remove('hidden');
+
+          const approxKB = Math.round((stampedDataUrl.length * 3) / 4 / 1024);
+          imgInfoEl.textContent = `Kích thước ảnh đã nén: ~${approxKB} KB (${w}x${h}px)`;
+          resolve();
+        };
+        img.src = dataUrl;
+      });
+    }
+
+    cameraInputEl.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        rawImageDataUrl = ev.target.result;
+        await renderStampedImage(rawImageDataUrl);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Cập nhật lại watermark nếu đổi tên NV / tên cửa hàng / địa chỉ sau khi chụp
+    [nhanVienEl, tenCuaHangEl, diaChiEl].forEach(el => {
+      el.addEventListener('change', () => {
+        if (rawImageDataUrl) renderStampedImage(rawImageDataUrl);
+      });
+    });
+
+    // Gửi dữ liệu về Google Apps Script
+    document.getElementById('surveyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      resultMsgEl.classList.add('hidden');
+
+      if (!mucDoEl.value) {
+        showMessage('Vui lòng chọn Mức độ tiềm năng.', false);
+        return;
+      }
+      if (!stampedDataUrl) {
+        showMessage('Vui lòng chụp ảnh thực tế trước khi gửi.', false);
+        return;
+      }
+
+      btnSubmitEl.disabled = true;
+      btnSubmitEl.textContent = 'Đang gửi báo cáo...';
+      localStorage.setItem('ks_nhanVien', nhanVienEl.value.trim());
+
+      const payload = {
+        nhanVien: nhanVienEl.value.trim(),
+        tenCuaHang: tenCuaHangEl.value.trim(),
+        diaChi: diaChiEl.value.trim(),
+        lat: latEl.value,
+        lng: lngEl.value,
+        lienHe: document.getElementById('lienHe').value.trim(),
+        loaiHinh: document.getElementById('loaiHinh').value,
+        sanPhamDangDung: document.getElementById('sanPhamDangDung').value.trim(),
+        lyDoChuaDung: document.getElementById('lyDoChuaDung').value,
+        mucDoTiemNang: mucDoEl.value,
+        ghiChu: document.getElementById('ghiChu').value.trim(),
+        imageBase64: stampedDataUrl,
+        imageMime: 'image/jpeg'
+      };
+
+      try {
+        const res = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.status === 'success') {
+          showMessage('Đã gửi báo cáo khảo sát thành công! Dữ liệu đã lưu vào bảng.', true);
+          // Reset thông tin điểm khảo sát tiếp theo (giữ tên nhân viên)
+          tenCuaHangEl.value = '';
+          diaChiEl.value = '';
+          document.getElementById('lienHe').value = '';
+          document.getElementById('sanPhamDangDung').value = '';
+          document.getElementById('ghiChu').value = '';
+          cameraInputEl.value = '';
+          rawImageDataUrl = '';
+          stampedDataUrl = '';
+          previewBoxEl.classList.add('hidden');
+          fetchLocation();
+        } else {
+          showMessage('Lỗi từ hệ thống: ' + (data.message || 'Không rõ nguyên nhân'), false);
+        }
+      } catch (err) {
+        showMessage('Không gửi được dữ liệu (kiểm tra kết nối mạng hoặc quyền truy cập Web App).', false);
+      } finally {
+        btnSubmitEl.disabled = false;
+        btnSubmitEl.textContent = 'Gửi Báo Cáo Khảo Sát';
+      }
+    });
+
+    function showMessage(text, isSuccess) {
+      resultMsgEl.textContent = text;
+      resultMsgEl.className = isSuccess
+        ? 'text-sm rounded-xl p-3 bg-emerald-50 text-emerald-800 border border-emerald-200'
+        : 'text-sm rounded-xl p-3 bg-red-50 text-red-800 border border-red-200';
+      resultMsgEl.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
