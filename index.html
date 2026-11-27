@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Khảo Sát Thị Trường - Check-in Điểm Bán</title>
+  <title>Khảo Sát Thị Trường - Dầu Nhớt & Hóa Chất Gara</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-10">
   <div class="max-w-md mx-auto bg-white min-h-screen sm:min-h-0 sm:my-6 sm:rounded-2xl shadow-md overflow-hidden">
     <!-- Header -->
-    <div class="bg-blue-700 text-white px-5 py-4">
-      <h1 class="text-lg font-bold tracking-tight">Khảo Sát Khách Hàng Tiềm Năng</h1>
-      <p class="text-xs text-blue-100 mt-0.5">Ghi nhận thực địa điểm chưa sử dụng sản phẩm</p>
+    <div class="bg-slate-900 text-white px-5 py-4">
+      <h1 class="text-lg font-bold tracking-tight">Khảo Sát Điểm Bán & Gara</h1>
+      <p class="text-xs text-slate-300 mt-0.5">Dầu mỡ, nước làm mát, nước rửa kính & hóa chất rửa xe</p>
     </div>
 
     <form id="surveyForm" class="p-5 space-y-4">
@@ -19,14 +19,14 @@
       <div>
         <label class="block text-sm font-semibold mb-1">Nhân viên khảo sát <span class="text-red-500">*</span></label>
         <input type="text" id="nhanVien" required placeholder="Nhập họ tên nhân viên..."
-          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
       </div>
 
-      <!-- Tên cửa hàng -->
+      <!-- Tên cửa hàng / gara -->
       <div>
-        <label class="block text-sm font-semibold mb-1">Tên cửa hàng / cơ sở <span class="text-red-500">*</span></label>
-        <input type="text" id="tenCuaHang" required placeholder="VD: Tạp hóa Minh Anh, Cửa hàng Hùng..."
-          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <label class="block text-sm font-semibold mb-1">Tên gara / cửa hàng / xưởng <span class="text-red-500">*</span></label>
+        <input type="text" id="tenCuaHang" required placeholder="VD: Gara Thành Đạt, Rửa xe Tuấn Anh..."
+          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
       </div>
 
       <!-- Địa chỉ & GPS -->
@@ -40,17 +40,17 @@
         </div>
         <div id="gpsStatus" class="text-xs text-slate-500">Đang lấy tọa độ GPS...</div>
         <input type="text" id="diaChi" placeholder="Địa chỉ tự động hoặc nhập/sửa nhanh..."
-          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
         <input type="hidden" id="lat" />
         <input type="hidden" id="lng" />
       </div>
 
       <!-- Ảnh chụp thực tế -->
       <div>
-        <label class="block text-sm font-semibold mb-1">Ảnh chụp thực tế (tự đóng dấu) <span class="text-red-500">*</span></label>
+        <label class="block text-sm font-semibold mb-1">Ảnh chụp thực tế (đóng dấu ngày giờ + GPS) <span class="text-red-500">*</span></label>
         <label class="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 bg-blue-50/50 hover:bg-blue-50 rounded-xl p-4 cursor-pointer transition">
           <span class="text-sm font-medium text-blue-700">Chạm để mở Camera chụp ảnh</span>
-          <span class="text-xs text-slate-500 mt-1">Ảnh sẽ tự chèn ngày giờ, GPS & tự nén</span>
+          <span class="text-xs text-slate-500 mt-1">Chụp mặt tiền, kệ nhớt hoặc khu rửa xe</span>
           <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" />
         </label>
 
@@ -62,43 +62,45 @@
 
       <!-- Người liên hệ & SĐT -->
       <div>
-        <label class="block text-sm font-semibold mb-1">Người liên hệ / SĐT</label>
-        <input type="text" id="lienHe" placeholder="VD: Anh Hùng - 0912xxxxxx"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <label class="block text-sm font-semibold mb-1">Chủ cơ sở / Người mua hàng & SĐT</label>
+        <input type="text" id="lienHe" placeholder="VD: Anh Minh (chủ gara) - 098xxxxxxx"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
       </div>
 
-      <!-- Loại hình cửa hàng -->
+      <!-- Loại hình điểm khảo sát -->
       <div>
-        <label class="block text-sm font-semibold mb-1">Loại hình cửa hàng</label>
+        <label class="block text-sm font-semibold mb-1">Loại hình điểm khảo sát</label>
         <select id="loaiHinh"
-          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
           <option value="">-- Chọn loại hình --</option>
-          <option value="Tạp hóa / Bán lẻ">Tạp hóa / Bán lẻ</option>
-          <option value="Đại lý / Nhà phân phối">Đại lý / Nhà phân phối</option>
-          <option value="Cửa hàng chuyên doanh">Cửa hàng chuyên doanh</option>
-          <option value="Xưởng / Cơ sở sản xuất">Xưởng / Cơ sở sản xuất</option>
+          <option value="Gara ô tô / Sửa chữa">Gara ô tô / Sửa chữa</option>
+          <option value="Tiệm sửa & rửa xe máy">Tiệm sửa & rửa xe máy</option>
+          <option value="Trung tâm rửa xe / Detailing">Trung tâm rửa xe / Detailing</option>
+          <option value="Cửa hàng phụ tùng / Dầu nhớt">Cửa hàng phụ tùng / Dầu nhớt</option>
+          <option value="Xưởng / Nhà máy / Vận tải">Xưởng / Nhà máy / Vận tải</option>
           <option value="Khác">Khác</option>
         </select>
       </div>
 
-      <!-- Sản phẩm đang dùng / đối thủ -->
+      <!-- Sản phẩm đang dùng / quan tâm -->
       <div>
-        <label class="block text-sm font-semibold mb-1">Sản phẩm đang bán / đang dùng</label>
-        <input type="text" id="sanPhamDangDung" placeholder="VD: Đang bán hàng hãng X, dùng sản phẩm Y..."
-          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <label class="block text-sm font-semibold mb-1">Sản phẩm đang dùng / Hãng đang nhập</label>
+        <input type="text" id="sanPhamDangDung" placeholder="VD: Đang dùng nhớt Castrol, rửa xe không chạm hãng X..."
+          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
       </div>
 
       <!-- Lý do chưa dùng sản phẩm -->
       <div>
         <label class="block text-sm font-semibold mb-1">Lý do chưa dùng sản phẩm công ty</label>
         <select id="lyDoChuaDung"
-          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
           <option value="">-- Chọn lý do chính --</option>
-          <option value="Đang nhập hàng NCC khác">Đang nhập hàng NCC khác</option>
+          <option value="Đang dùng ổn định hàng NCC khác">Đang dùng ổn định hàng NCC khác</option>
           <option value="Giá / chiết khấu chưa phù hợp">Giá / chiết khấu chưa phù hợp</option>
-          <option value="Chưa biết đến thương hiệu">Chưa biết đến thương hiệu</option>
-          <option value="Tệp khách chưa phù hợp">Tệp khách chưa phù hợp</option>
-          <option value="Chưa gặp người quyết định">Chưa gặp người quyết định</option>
+          <option value="Đang bị ràng buộc công nợ / hợp đồng">Đang bị ràng buộc công nợ / hợp đồng</option>
+          <option value="Chưa biết đến sản phẩm / thương hiệu">Chưa biết đến sản phẩm / thương hiệu</option>
+          <option value="Chưa gặp người quyết định nhập hàng">Chưa gặp người quyết định nhập hàng</option>
+          <option value="Quy mô nhỏ / ít nhu cầu">Quy mô nhỏ / ít nhu cầu</option>
           <option value="Lý do khác">Lý do khác</option>
         </select>
       </div>
@@ -125,9 +127,9 @@
 
       <!-- Ghi chú -->
       <div>
-        <label class="block text-sm font-semibold mb-1">Ghi chú tình hình khách hàng</label>
-        <textarea id="ghiChu" rows="3" placeholder="Ghi nhanh nhu cầu, thời điểm hẹn quay lại, lưu ý cho sale..."
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        <label class="block text-sm font-semibold mb-1">Ghi chú khảo sát</label>
+        <textarea id="ghiChu" rows="3" placeholder="VD: Quan tâm can rửa không chạm & nước làm mát, hẹn báo giá tuần tới..."
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"></textarea>
       </div>
 
       <!-- Nút gửi -->
@@ -160,11 +162,9 @@
     let stampedDataUrl = '';
     let rawImageDataUrl = '';
 
-    // Ghi nhớ tên nhân viên lần gần nhất
     const savedNV = localStorage.getItem('ks_nhanVien');
     if (savedNV) nhanVienEl.value = savedNV;
 
-    // Chọn mức độ tiềm năng
     document.querySelectorAll('.pot-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.pot-btn').forEach(b => {
@@ -175,7 +175,6 @@
       });
     });
 
-    // Lấy GPS + Reverse Geocoding (OpenStreetMap Nominatim)
     async function fetchLocation() {
       gpsStatusEl.textContent = 'Đang lấy tọa độ GPS...';
       if (!navigator.geolocation) {
@@ -197,7 +196,7 @@
             diaChiEl.value = json.display_name;
           }
         } catch (e) {
-          // Không lấy được địa chỉ chữ vẫn giữ tọa độ GPS
+          // Bỏ qua nếu không lấy được địa chỉ chữ
         }
 
         if (rawImageDataUrl) {
@@ -211,7 +210,6 @@
     document.getElementById('btnGetLocation').addEventListener('click', fetchLocation);
     fetchLocation();
 
-    // Đóng dấu watermark & nén ảnh
     function renderStampedImage(dataUrl) {
       return new Promise((resolve) => {
         const img = new Image();
@@ -283,14 +281,12 @@
       reader.readAsDataURL(file);
     });
 
-    // Cập nhật lại watermark nếu đổi tên NV / tên cửa hàng / địa chỉ sau khi chụp
     [nhanVienEl, tenCuaHangEl, diaChiEl].forEach(el => {
       el.addEventListener('change', () => {
         if (rawImageDataUrl) renderStampedImage(rawImageDataUrl);
       });
     });
 
-    // Gửi dữ liệu về Google Apps Script
     document.getElementById('surveyForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       resultMsgEl.classList.add('hidden');
@@ -334,7 +330,6 @@
 
         if (data.status === 'success') {
           showMessage('Đã gửi báo cáo khảo sát thành công! Dữ liệu đã lưu vào bảng.', true);
-          // Reset thông tin điểm khảo sát tiếp theo (giữ tên nhân viên)
           tenCuaHangEl.value = '';
           diaChiEl.value = '';
           document.getElementById('lienHe').value = '';
