@@ -7,52 +7,52 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-10">
-  <div class="max-w-2xl mx-auto bg-white min-h-screen sm:min-h-0 sm:my-6 sm:rounded-2xl shadow-md overflow-hidden">
+  <div id="mainContainer" class="max-w-2xl mx-auto bg-white min-h-screen sm:min-h-0 sm:my-6 sm:rounded-2xl shadow-md overflow-hidden transition-all duration-200">
     <!-- Top Header -->
-    <div class="bg-slate-900 text-white px-4 py-3.5 flex items-center justify-between gap-2">
+    <div class="bg-slate-900 text-white px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
       <div>
-        <h1 class="text-base sm:text-lg font-bold tracking-tight">Khảo Sát & Báo Cáo Thị Trường</h1>
+        <h1 class="text-base sm:text-xl font-bold tracking-tight">Khảo Sát & Báo Cáo Thị Trường</h1>
         <p class="text-[11px] sm:text-xs text-slate-300">Dầu mỡ, nước làm mát, nước rửa kính & hóa chất gara</p>
       </div>
       <div class="flex items-center bg-slate-800 p-1 rounded-xl shrink-0">
         <button type="button" id="tabSurveyBtn"
-          class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white transition">
+          class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-blue-600 text-white transition">
           Khảo sát
         </button>
         <button type="button" id="tabReportBtn"
-          class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition">
+          class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition">
           Báo cáo
         </button>
       </div>
     </div>
 
-    <!-- ==================== VIEW 1: FORM KHẢO SÁT ==================== -->
-    <div id="surveyView" class="p-4 sm:p-5">
+    <!-- ==================== VIEW 1: FORM KHẢO SÁT (BẮT BUỘC TẤT CẢ MỤC) ==================== -->
+    <div id="surveyView" class="p-4 sm:p-6">
       <form id="surveyForm" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold mb-1">Nhân viên khảo sát <span class="text-red-500">*</span></label>
-            <input type="text" id="nhanVien" required placeholder="Nhập họ tên nhân viên..."
+            <label class="block text-sm font-semibold mb-1">Nhân viên phụ trách <span class="text-red-500">*</span></label>
+            <input type="text" id="nhanVienPhuTrach" required placeholder="Nhập họ tên nhân viên..."
               class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
           </div>
           <div>
-            <label class="block text-sm font-semibold mb-1">Tên gara / cửa hàng / xưởng <span class="text-red-500">*</span></label>
-            <input type="text" id="tenCuaHang" required placeholder="VD: Gara sửa chữa ô tô Thành Đạt..."
+            <label class="block text-sm font-semibold mb-1">Tên khách hàng / gara / cửa hàng <span class="text-red-500">*</span></label>
+            <input type="text" id="tenKhachHang" required placeholder="VD: Gara sửa chữa ô tô Thành Đạt..."
               class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
           </div>
         </div>
 
         <!-- Địa chỉ & GPS -->
-        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-600 uppercase">Vị trí GPS & Địa chỉ</span>
+            <span class="text-xs font-semibold text-slate-600 uppercase">Vị trí GPS & Địa chỉ <span class="text-red-500">*</span></span>
             <button type="button" id="btnGetLocation"
               class="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-md font-medium active:bg-blue-100">
               Lấy lại GPS
             </button>
           </div>
           <div id="gpsStatus" class="text-xs text-slate-500">Đang lấy tọa độ GPS...</div>
-          <input type="text" id="diaChi" placeholder="Địa chỉ tự động hoặc nhập/sửa nhanh..."
+          <input type="text" id="diaChi" required placeholder="Địa chỉ tự động hoặc nhập/sửa đầy đủ..."
             class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
           <input type="hidden" id="lat" />
           <input type="hidden" id="lng" />
@@ -73,19 +73,30 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm font-semibold mb-1">Chủ cơ sở / Người mua hàng & SĐT</label>
-            <input type="text" id="lienHe" placeholder="VD: Anh Tuấn - 0986378288"
+            <label class="block text-sm font-semibold mb-1">Người liên hệ <span class="text-red-500">*</span></label>
+            <input type="text" id="nguoiLienHe" required placeholder="VD: Anh Tuấn"
               class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
           </div>
-
-          <!-- Loại hình điểm khảo sát -->
           <div>
-            <label class="block text-sm font-semibold mb-1">Loại hình điểm khảo sát <span class="text-red-500">*</span></label>
-            <select id="loaiHinhSelect" required
+            <label class="block text-sm font-semibold mb-1">SĐT <span class="text-red-500">*</span></label>
+            <input type="tel" id="sdt" required placeholder="VD: 0986378288"
+              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1">Zalo <span class="text-red-500">*</span></label>
+            <input type="text" id="zalo" required placeholder="Số Zalo hoặc tên Zalo..."
+              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">Loại cửa hàng <span class="text-red-500">*</span></label>
+            <select id="loaiCuaHangSelect" required
               class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-              <option value="">-- Chọn loại hình --</option>
+              <option value="">-- Chọn loại cửa hàng --</option>
               <option value="Gara sửa chữa ô tô">Gara sửa chữa ô tô</option>
               <option value="Tiệm sửa & rửa xe máy">Tiệm sửa & rửa xe máy</option>
               <option value="Trung tâm rửa xe / Detailing">Trung tâm rửa xe / Detailing</option>
@@ -94,29 +105,40 @@
               <option value="Khác">Khác</option>
             </select>
           </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1">Sản phẩm quan tâm <span class="text-red-500">*</span></label>
+            <input type="text" id="sanPhamQuanTam" required placeholder="VD: Rửa xe không chạm, nước làm mát..."
+              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+          </div>
         </div>
 
-        <!-- Nhập loại hình khi chọn Khác -->
-        <div id="loaiHinhKhacBox" class="hidden bg-slate-50 border border-slate-300 rounded-xl p-3">
-          <label class="block text-sm font-semibold mb-1">
-            Loại hình điểm khảo sát khác <span class="text-red-500">*</span>
-          </label>
-          <input type="text" id="loaiHinhKhacInput" placeholder="VD: Trạm dừng nghỉ, HTX vận tải..."
+        <div id="loaiCuaHangKhacBox" class="hidden bg-slate-50 border border-slate-300 rounded-xl p-3">
+          <label class="block text-sm font-semibold mb-1">Loại cửa hàng khác <span class="text-red-500">*</span></label>
+          <input type="text" id="loaiCuaHangKhacInput" placeholder="VD: Trạm dừng nghỉ, HTX vận tải..."
             class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold mb-1">Sản phẩm đang dùng / Hãng đang nhập</label>
-            <input type="text" id="sanPhamDangDung" placeholder="VD: Castrol, rửa không chạm hãng X..."
+            <label class="block text-sm font-semibold mb-1">Sản phẩm đã mua <span class="text-red-500">*</span></label>
+            <input type="text" id="sanPhamDaMua" required placeholder="VD: Chưa mua / 1 can bóng lốp..."
               class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
           </div>
 
           <div>
-            <label class="block text-sm font-semibold mb-1">Lý do chưa dùng sản phẩm công ty</label>
-            <select id="lyDoChuaDungSelect"
+            <label class="block text-sm font-semibold mb-1">Sản phẩm đang dùng <span class="text-red-500">*</span></label>
+            <input type="text" id="sanPhamDangDung" required placeholder="VD: Castrol, dung dịch hãng X..."
+              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">Lý do chưa dùng sản phẩm công ty <span class="text-red-500">*</span></label>
+            <select id="lyDoChuaDungSelect" required
               class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-              <option value="">-- Chọn lý do chính --</option>
+              <option value="">-- Chọn lý do --</option>
               <option value="Đang dùng ổn định hàng NCC khác">Đang dùng ổn định hàng NCC khác</option>
               <option value="Giá / chiết khấu chưa phù hợp">Giá / chiết khấu chưa phù hợp</option>
               <option value="Đang bị ràng buộc công nợ / hợp đồng">Đang bị ràng buộc công nợ / hợp đồng</option>
@@ -126,30 +148,18 @@
               <option value="Lý do khác">Lý do khác</option>
             </select>
           </div>
-        </div>
-
-        <!-- Nhập lý do khi chọn Lý do khác -->
-        <div id="lyDoKhacBox" class="hidden bg-slate-50 border border-slate-300 rounded-xl p-3">
-          <label class="block text-sm font-semibold mb-1">
-            Lý do chưa dùng khác <span class="text-red-500">*</span>
-          </label>
-          <input type="text" id="lyDoKhacInput" placeholder="Nhập lý do cụ thể..."
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
-        </div>
-
-        <!-- Sản phẩm đã mua & Ngày hẹn chăm sóc lại -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-semibold mb-1">Sản phẩm đã mua</label>
-            <input type="text" id="sanPhamDaMua" placeholder="VD: 2 can rửa không chạm, nước rửa kính..."
-              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
-          </div>
 
           <div>
-            <label class="block text-sm font-semibold mb-1">Ngày hẹn chăm sóc lại</label>
-            <input type="date" id="ngayHenChamSocLai"
+            <label class="block text-sm font-semibold mb-1">Ngày hẹn chăm sóc lại <span class="text-red-500">*</span></label>
+            <input type="date" id="ngayHenChamSocLai" required
               class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
           </div>
+        </div>
+
+        <div id="lyDoKhacBox" class="hidden bg-slate-50 border border-slate-300 rounded-xl p-3">
+          <label class="block text-sm font-semibold mb-1">Lý do chưa dùng khác <span class="text-red-500">*</span></label>
+          <input type="text" id="lyDoKhacInput" placeholder="Nhập lý do cụ thể..."
+            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
         </div>
 
         <!-- Mức độ tiềm năng -->
@@ -174,8 +184,8 @@
 
         <!-- Ghi chú -->
         <div>
-          <label class="block text-sm font-semibold mb-1">Ghi chú khảo sát</label>
-          <textarea id="ghiChu" rows="3" placeholder="VD: Quan tâm can rửa không chạm & nước làm mát, hẹn báo giá tuần tới..."
+          <label class="block text-sm font-semibold mb-1">Ghi chú <span class="text-red-500">*</span></label>
+          <textarea id="ghiChu" rows="3" required placeholder="Ghi đầy đủ thông tin trao đổi, nhu cầu, lưu ý chăm sóc..."
             class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"></textarea>
         </div>
 
@@ -188,9 +198,9 @@
       </form>
     </div>
 
-    <!-- ==================== VIEW 2: BÁO CÁO TRỰC TIẾP & SỬA DỮ LIỆU ==================== -->
-    <div id="reportView" class="hidden p-4 sm:p-5 space-y-4">
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-3">
+    <!-- ==================== VIEW 2: BÁO CÁO TRÊN MÁY TÍNH & ĐIỆN THOẠI ==================== -->
+    <div id="reportView" class="hidden p-4 sm:p-6 space-y-4">
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex flex-wrap items-center gap-1.5">
             <button type="button" data-period="day"
@@ -212,12 +222,12 @@
           </div>
 
           <button type="button" id="btnRefreshReport"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-white hover:bg-slate-900">
+            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-white hover:bg-slate-900">
             Tải lại
           </button>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
           <div id="pickerDayBox">
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Chọn ngày</label>
             <input type="date" id="filterDate"
@@ -235,36 +245,73 @@
           </div>
 
           <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tìm tên gara / nhân viên / sản phẩm</label>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Lọc mức độ tiềm năng</label>
+            <select id="filterPotential" class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
+              <option value="">Tất cả mức độ</option>
+              <option value="Cao">Cao</option>
+              <option value="Trung bình">Trung bình</option>
+              <option value="Thấp">Thấp</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tìm tên KH / NV / sản phẩm</label>
             <input type="text" id="filterKeyword" placeholder="Gõ từ khóa để lọc nhanh..."
               class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs" />
           </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-2 text-center">
-        <div class="bg-blue-50 border border-blue-100 rounded-xl p-2.5">
-          <div class="text-[11px] text-blue-700 font-medium">Tổng điểm khảo sát</div>
-          <div id="statTotal" class="text-lg font-bold text-blue-900">0</div>
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
+          <div class="text-xs text-blue-700 font-medium">Tổng điểm khảo sát</div>
+          <div id="statTotal" class="text-xl font-bold text-blue-900">0</div>
         </div>
-        <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-2.5">
-          <div class="text-[11px] text-emerald-700 font-medium">Tiềm năng Cao</div>
-          <div id="statHigh" class="text-lg font-bold text-emerald-900">0</div>
+        <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+          <div class="text-xs text-emerald-700 font-medium">Tiềm năng Cao</div>
+          <div id="statHigh" class="text-xl font-bold text-emerald-900">0</div>
         </div>
-        <div class="bg-amber-50 border border-amber-100 rounded-xl p-2.5">
-          <div class="text-[11px] text-amber-700 font-medium">Tiềm năng TB / Thấp</div>
-          <div id="statOther" class="text-lg font-bold text-amber-900">0</div>
+        <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
+          <div class="text-xs text-amber-700 font-medium">Tiềm năng TB / Thấp</div>
+          <div id="statOther" class="text-xl font-bold text-amber-900">0</div>
         </div>
       </div>
 
-      <div id="reportStatus" class="text-xs text-slate-500">Đang tải dữ liệu báo cáo...</div>
-      <div id="reportList" class="space-y-3"></div>
+      <div id="reportStatus" class="text-xs text-slate-600">Đang tải dữ liệu báo cáo...</div>
+
+      <!-- Bảng rộng cho máy tính -->
+      <div class="hidden lg:block overflow-x-auto border border-slate-200 rounded-xl">
+        <table class="min-w-full text-xs text-left border-collapse">
+          <thead class="bg-slate-800 text-white">
+            <tr>
+              <th class="px-3 py-2.5 whitespace-nowrap">Ngày checkin</th>
+              <th class="px-3 py-2.5 whitespace-nowrap">NV phụ trách</th>
+              <th class="px-3 py-2.5 whitespace-nowrap">Tên khách hàng</th>
+              <th class="px-3 py-2.5 whitespace-nowrap">Liên hệ / SĐT / Zalo</th>
+              <th class="px-3 py-2.5 whitespace-nowrap">Loại cửa hàng</th>
+              <th class="px-3 py-2.5 whitespace-nowrap">SP quan tâm</th>
+              <th class="px-3 py-2.5 whitespace-nowrap">SP đã mua</th>
+              <th class="px-3 py-2.5 whitespace-nowrap">SP đang dùng</th>
+              <th class="px-3 py-2.5 whitespace-nowrap">Lý do chưa dùng</th>
+              <th class="px-3 py-2.5 whitespace-nowrap">Ngày hẹn lại</th>
+              <th class="px-3 py-2.5 whitespace-nowrap">Tiềm năng</th>
+              <th class="px-3 py-2.5 whitespace-nowrap">Địa chỉ & Ghi chú</th>
+              <th class="px-3 py-2.5 whitespace-nowrap">Ảnh / GPS</th>
+              <th class="px-3 py-2.5 whitespace-nowrap text-center">Sửa</th>
+            </tr>
+          </thead>
+          <tbody id="reportTableBody" class="divide-y divide-slate-200 bg-white"></tbody>
+        </table>
+      </div>
+
+      <!-- Danh sách thẻ cho màn hình nhỏ -->
+      <div id="reportCardList" class="lg:hidden space-y-3"></div>
     </div>
   </div>
 
   <!-- ==================== MODAL SỬA DỮ LIỆU ==================== -->
   <div id="editModal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto p-5 space-y-3">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto p-5 space-y-3">
       <div class="flex items-center justify-between border-b pb-2.5">
         <h2 class="text-base font-bold text-slate-800">Sửa Thông Tin Khảo Sát</h2>
         <button type="button" id="closeEditModal" class="text-slate-400 hover:text-slate-700 text-lg font-bold px-2">&times;</button>
@@ -276,28 +323,39 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold mb-1">Nhân viên khảo sát *</label>
+            <label class="block text-xs font-semibold mb-1">Nhân viên phụ trách *</label>
             <input type="text" id="editNhanVien" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
           </div>
           <div>
-            <label class="block text-xs font-semibold mb-1">Tên gara / cửa hàng *</label>
-            <input type="text" id="editTenCuaHang" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+            <label class="block text-xs font-semibold mb-1">Tên khách hàng *</label>
+            <input type="text" id="editTenKH" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold mb-1">Địa chỉ</label>
-          <input type="text" id="editDiaChi" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <label class="block text-xs font-semibold mb-1">Địa chỉ *</label>
+          <input type="text" id="editDiaChi" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold mb-1">Người liên hệ *</label>
+            <input type="text" id="editNguoiLienHe" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">SĐT *</label>
+            <input type="text" id="editSDT" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Zalo *</label>
+            <input type="text" id="editZalo" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold mb-1">Người liên hệ / SĐT</label>
-            <input type="text" id="editLienHe" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold mb-1">Loại hình điểm khảo sát *</label>
-            <select id="editLoaiHinhSelect" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+            <label class="block text-xs font-semibold mb-1">Loại cửa hàng *</label>
+            <select id="editLoaiCuaHangSelect" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
               <option value="Gara sửa chữa ô tô">Gara sửa chữa ô tô</option>
               <option value="Tiệm sửa & rửa xe máy">Tiệm sửa & rửa xe máy</option>
               <option value="Trung tâm rửa xe / Detailing">Trung tâm rửa xe / Detailing</option>
@@ -306,22 +364,32 @@
               <option value="Khác">Khác</option>
             </select>
           </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Sản phẩm quan tâm *</label>
+            <input type="text" id="editSanPhamQuanTam" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          </div>
         </div>
 
-        <div id="editLoaiHinhKhacBox" class="hidden">
-          <label class="block text-xs font-semibold mb-1">Loại hình điểm khảo sát khác *</label>
-          <input type="text" id="editLoaiHinhKhacInput" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        <div id="editLoaiCuaHangKhacBox" class="hidden">
+          <label class="block text-xs font-semibold mb-1">Loại cửa hàng khác *</label>
+          <input type="text" id="editLoaiCuaHangKhacInput" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold mb-1">Sản phẩm đang dùng</label>
-            <input type="text" id="editSanPham" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+            <label class="block text-xs font-semibold mb-1">Sản phẩm đã mua *</label>
+            <input type="text" id="editSanPhamDaMua" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
           </div>
           <div>
-            <label class="block text-xs font-semibold mb-1">Lý do chưa dùng</label>
-            <select id="editLyDoSelect" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
-              <option value="">-- Chọn lý do --</option>
+            <label class="block text-xs font-semibold mb-1">Sản phẩm đang dùng *</label>
+            <input type="text" id="editSanPhamDangDung" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold mb-1">Lý do chưa dùng *</label>
+            <select id="editLyDoSelect" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
               <option value="Đang dùng ổn định hàng NCC khác">Đang dùng ổn định hàng NCC khác</option>
               <option value="Giá / chiết khấu chưa phù hợp">Giá / chiết khấu chưa phù hợp</option>
               <option value="Đang bị ràng buộc công nợ / hợp đồng">Đang bị ràng buộc công nợ / hợp đồng</option>
@@ -331,22 +399,15 @@
               <option value="Lý do khác">Lý do khác</option>
             </select>
           </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Ngày hẹn chăm sóc lại *</label>
+            <input type="date" id="editNgayHen" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm" />
+          </div>
         </div>
 
         <div id="editLyDoKhacBox" class="hidden">
           <label class="block text-xs font-semibold mb-1">Lý do chưa dùng khác *</label>
           <input type="text" id="editLyDoKhacInput" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold mb-1">Sản phẩm đã mua</label>
-            <input type="text" id="editSanPhamDaMua" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold mb-1">Ngày hẹn chăm sóc lại</label>
-            <input type="date" id="editNgayHen" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm" />
-          </div>
         </div>
 
         <div>
@@ -359,8 +420,8 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold mb-1">Ghi chú khảo sát</label>
-          <textarea id="editGhiChu" rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
+          <label class="block text-xs font-semibold mb-1">Ghi chú *</label>
+          <textarea id="editGhiChu" rows="2" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
         </div>
 
         <div id="editErrorMsg" class="hidden text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg p-2"></div>
@@ -397,13 +458,14 @@
       'Quy mô nhỏ / ít nhu cầu'
     ];
 
+    const mainContainer = document.getElementById('mainContainer');
     const tabSurveyBtn = document.getElementById('tabSurveyBtn');
     const tabReportBtn = document.getElementById('tabReportBtn');
     const surveyView = document.getElementById('surveyView');
     const reportView = document.getElementById('reportView');
 
-    const nhanVienEl = document.getElementById('nhanVien');
-    const tenCuaHangEl = document.getElementById('tenCuaHang');
+    const nhanVienEl = document.getElementById('nhanVienPhuTrach');
+    const tenKHEl = document.getElementById('tenKhachHang');
     const diaChiEl = document.getElementById('diaChi');
     const latEl = document.getElementById('lat');
     const lngEl = document.getElementById('lng');
@@ -413,26 +475,36 @@
     const previewImgEl = document.getElementById('previewImg');
     const imgInfoEl = document.getElementById('imgInfo');
 
-    const loaiHinhSelectEl = document.getElementById('loaiHinhSelect');
-    const loaiHinhKhacBoxEl = document.getElementById('loaiHinhKhacBox');
-    const loaiHinhKhacInputEl = document.getElementById('loaiHinhKhacInput');
+    const nguoiLienHeEl = document.getElementById('nguoiLienHe');
+    const sdtEl = document.getElementById('sdt');
+    const zaloEl = document.getElementById('zalo');
 
-    const lyDoChuaDungSelectEl = document.getElementById('lyDoChuaDungSelect');
+    const loaiSelectEl = document.getElementById('loaiCuaHangSelect');
+    const loaiKhacBoxEl = document.getElementById('loaiCuaHangKhacBox');
+    const loaiKhacInputEl = document.getElementById('loaiCuaHangKhacInput');
+
+    const sanPhamQuanTamEl = document.getElementById('sanPhamQuanTam');
+    const sanPhamDaMuaEl = document.getElementById('sanPhamDaMua');
+    const sanPhamDangDungEl = document.getElementById('sanPhamDangDung');
+
+    const lyDoSelectEl = document.getElementById('lyDoChuaDungSelect');
     const lyDoKhacBoxEl = document.getElementById('lyDoKhacBox');
     const lyDoKhacInputEl = document.getElementById('lyDoKhacInput');
 
-    const sanPhamDaMuaEl = document.getElementById('sanPhamDaMua');
-    const ngayHenChamSocLaiEl = document.getElementById('ngayHenChamSocLai');
+    const ngayHenEl = document.getElementById('ngayHenChamSocLai');
     const mucDoEl = document.getElementById('mucDoTiemNang');
+    const ghiChuEl = document.getElementById('ghiChu');
     const btnSubmitEl = document.getElementById('btnSubmit');
     const resultMsgEl = document.getElementById('resultMsg');
 
     const filterDateEl = document.getElementById('filterDate');
     const filterMonthEl = document.getElementById('filterMonth');
     const filterYearEl = document.getElementById('filterYear');
+    const filterPotentialEl = document.getElementById('filterPotential');
     const filterKeywordEl = document.getElementById('filterKeyword');
     const reportStatusEl = document.getElementById('reportStatus');
-    const reportListEl = document.getElementById('reportList');
+    const reportTableBodyEl = document.getElementById('reportTableBody');
+    const reportCardListEl = document.getElementById('reportCardList');
 
     let stampedDataUrl = '';
     let rawImageDataUrl = '';
@@ -450,7 +522,6 @@
     const savedNV = localStorage.getItem('ks_nhanVien');
     if (savedNV) nhanVienEl.value = savedNV;
 
-    // Bộ đếm giây khi đang chờ lưu
     function startSecondsCounter(buttonEl, baseText) {
       let sec = 0;
       buttonEl.disabled = true;
@@ -467,15 +538,17 @@
 
     function switchTab(tab) {
       if (tab === 'survey') {
+        mainContainer.className = 'max-w-2xl mx-auto bg-white min-h-screen sm:min-h-0 sm:my-6 sm:rounded-2xl shadow-md overflow-hidden transition-all duration-200';
         surveyView.classList.remove('hidden');
         reportView.classList.add('hidden');
-        tabSurveyBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white transition';
-        tabReportBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition';
+        tabSurveyBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-blue-600 text-white transition';
+        tabReportBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition';
       } else {
+        mainContainer.className = 'max-w-7xl mx-auto bg-white min-h-screen sm:min-h-0 sm:my-6 sm:rounded-2xl shadow-md overflow-hidden transition-all duration-200';
         surveyView.classList.add('hidden');
         reportView.classList.remove('hidden');
-        tabReportBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white transition';
-        tabSurveyBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition';
+        tabReportBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-blue-600 text-white transition';
+        tabSurveyBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition';
         loadReportData();
       }
     }
@@ -483,20 +556,20 @@
     tabSurveyBtn.addEventListener('click', () => switchTab('survey'));
     tabReportBtn.addEventListener('click', () => switchTab('report'));
 
-    loaiHinhSelectEl.addEventListener('change', () => {
-      if (loaiHinhSelectEl.value === 'Khác') {
-        loaiHinhKhacBoxEl.classList.remove('hidden');
-        loaiHinhKhacInputEl.required = true;
-        loaiHinhKhacInputEl.focus();
+    loaiSelectEl.addEventListener('change', () => {
+      if (loaiSelectEl.value === 'Khác') {
+        loaiKhacBoxEl.classList.remove('hidden');
+        loaiKhacInputEl.required = true;
+        loaiKhacInputEl.focus();
       } else {
-        loaiHinhKhacBoxEl.classList.add('hidden');
-        loaiHinhKhacInputEl.required = false;
-        loaiHinhKhacInputEl.value = '';
+        loaiKhacBoxEl.classList.add('hidden');
+        loaiKhacInputEl.required = false;
+        loaiKhacInputEl.value = '';
       }
     });
 
-    lyDoChuaDungSelectEl.addEventListener('change', () => {
-      if (lyDoChuaDungSelectEl.value === 'Lý do khác') {
+    lyDoSelectEl.addEventListener('change', () => {
+      if (lyDoSelectEl.value === 'Lý do khác') {
         lyDoKhacBoxEl.classList.remove('hidden');
         lyDoKhacInputEl.required = true;
         lyDoKhacInputEl.focus();
@@ -513,29 +586,32 @@
       return cleaned.length >= 2 && lettersOrDigits.length >= 2;
     }
 
-    function getResolvedLoaiHinh() {
-      if (loaiHinhSelectEl.value === 'Khác') {
-        const customVal = loaiHinhKhacInputEl.value.trim();
-        if (!validateMeaningfulText(customVal)) {
-          return { error: 'Vui lòng nhập nội dung cụ thể cho loại hình điểm khảo sát.' };
+    function getResolvedLoai() {
+      if (loaiSelectEl.value === 'Khác') {
+        const val = loaiKhacInputEl.value.trim();
+        if (!validateMeaningfulText(val)) {
+          return { error: 'Vui lòng nhập nội dung cụ thể cho Loại cửa hàng.' };
         }
-        return { value: customVal };
+        return { value: val };
       }
-      if (!loaiHinhSelectEl.value) {
-        return { error: 'Vui lòng chọn Loại hình điểm khảo sát.' };
+      if (!loaiSelectEl.value) {
+        return { error: 'Vui lòng chọn Loại cửa hàng.' };
       }
-      return { value: loaiHinhSelectEl.value };
+      return { value: loaiSelectEl.value };
     }
 
     function getResolvedLyDo() {
-      if (lyDoChuaDungSelectEl.value === 'Lý do khác') {
-        const customReason = lyDoKhacInputEl.value.trim();
-        if (!validateMeaningfulText(customReason)) {
-          return { error: 'Vui lòng nhập nội dung cụ thể cho lý do chưa dùng sản phẩm.' };
+      if (lyDoSelectEl.value === 'Lý do khác') {
+        const val = lyDoKhacInputEl.value.trim();
+        if (!validateMeaningfulText(val)) {
+          return { error: 'Vui lòng nhập nội dung cụ thể cho Lý do chưa dùng sản phẩm.' };
         }
-        return { value: customReason };
+        return { value: val };
       }
-      return { value: lyDoChuaDungSelectEl.value };
+      if (!lyDoSelectEl.value) {
+        return { error: 'Vui lòng chọn Lý do chưa dùng sản phẩm công ty.' };
+      }
+      return { value: lyDoSelectEl.value };
     }
 
     document.querySelectorAll('.pot-btn').forEach(btn => {
@@ -551,7 +627,7 @@
     async function fetchLocation() {
       gpsStatusEl.textContent = 'Đang lấy tọa độ GPS...';
       if (!navigator.geolocation) {
-        gpsStatusEl.textContent = 'Trình duyệt không hỗ trợ GPS. Vui lòng nhập địa chỉ tay.';
+        gpsStatusEl.textContent = 'Trình duyệt không hỗ trợ GPS. Vui lòng nhập địa chỉ đầy đủ.';
         return;
       }
 
@@ -574,7 +650,7 @@
           await renderStampedImage(rawImageDataUrl);
         }
       }, () => {
-        gpsStatusEl.textContent = 'Chưa cấp quyền GPS hoặc tín hiệu yếu. Bạn vẫn có thể nhập địa chỉ tay.';
+        gpsStatusEl.textContent = 'Chưa cấp quyền GPS hoặc tín hiệu yếu. Vui lòng nhập địa chỉ đầy đủ.';
       }, { enableHighAccuracy: true, timeout: 10000 });
     }
 
@@ -601,13 +677,13 @@
 
           const now = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
           const nv = nhanVienEl.value.trim() || 'NV';
-          const shop = tenCuaHangEl.value.trim() || 'Điểm khảo sát';
+          const kh = tenKHEl.value.trim() || 'Khách hàng';
           const gpsText = (latEl.value && lngEl.value) ? `GPS: ${latEl.value}, ${lngEl.value}` : 'GPS: N/A';
           const addrText = diaChiEl.value.trim() ? diaChiEl.value.trim().slice(0, 80) : '';
 
           const lines = [
             `${now} | NV: ${nv}`,
-            `KH: ${shop}`,
+            `KH: ${kh}`,
             addrText ? `${gpsText} | ${addrText}` : gpsText
           ];
 
@@ -652,55 +728,69 @@
       reader.readAsDataURL(file);
     });
 
-    [nhanVienEl, tenCuaHangEl, diaChiEl].forEach(el => {
+    [nhanVienEl, tenKHEl, diaChiEl].forEach(el => {
       el.addEventListener('change', () => {
         if (rawImageDataUrl) renderStampedImage(rawImageDataUrl);
       });
     });
 
+    // Kiểm tra bắt buộc điền tất cả các mục
+    function validateAllRequiredFields() {
+      const checks = [
+        [validateMeaningfulText(nhanVienEl.value), 'Vui lòng nhập đầy đủ Nhân viên phụ trách.'],
+        [validateMeaningfulText(tenKHEl.value), 'Vui lòng nhập đầy đủ Tên khách hàng.'],
+        [validateMeaningfulText(diaChiEl.value), 'Vui lòng nhập đầy đủ Địa chỉ.'],
+        [Boolean(stampedDataUrl), 'Vui lòng chụp ảnh thực tế.'],
+        [validateMeaningfulText(nguoiLienHeEl.value), 'Vui lòng nhập đầy đủ Người liên hệ.'],
+        [validateMeaningfulText(sdtEl.value), 'Vui lòng nhập đầy đủ SĐT.'],
+        [validateMeaningfulText(zaloEl.value), 'Vui lòng nhập đầy đủ Zalo.'],
+        [validateMeaningfulText(sanPhamQuanTamEl.value), 'Vui lòng nhập đầy đủ Sản phẩm quan tâm.'],
+        [validateMeaningfulText(sanPhamDaMuaEl.value), 'Vui lòng nhập đầy đủ Sản phẩm đã mua.'],
+        [validateMeaningfulText(sanPhamDangDungEl.value), 'Vui lòng nhập đầy đủ Sản phẩm đang dùng.'],
+        [Boolean(ngayHenEl.value), 'Vui lòng chọn Ngày hẹn chăm sóc lại.'],
+        [Boolean(mucDoEl.value), 'Vui lòng chọn Mức độ tiềm năng.'],
+        [validateMeaningfulText(ghiChuEl.value), 'Vui lòng nhập đầy đủ Ghi chú.']
+      ];
+      for (const [ok, msg] of checks) {
+        if (!ok) return msg;
+      }
+      return '';
+    }
+
     document.getElementById('surveyForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       resultMsgEl.classList.add('hidden');
 
-      const typeCheck = getResolvedLoaiHinh();
-      if (typeCheck.error) {
-        showMessage(typeCheck.error, false);
-        return;
-      }
+      const loaiCheck = getResolvedLoai();
+      if (loaiCheck.error) return showMessage(loaiCheck.error, false);
 
-      const reasonCheck = getResolvedLyDo();
-      if (reasonCheck.error) {
-        showMessage(reasonCheck.error, false);
-        return;
-      }
+      const lyDoCheck = getResolvedLyDo();
+      if (lyDoCheck.error) return showMessage(lyDoCheck.error, false);
 
-      if (!mucDoEl.value) {
-        showMessage('Vui lòng chọn Mức độ tiềm năng.', false);
-        return;
-      }
-      if (!stampedDataUrl) {
-        showMessage('Vui lòng chụp ảnh thực tế trước khi gửi.', false);
-        return;
-      }
+      const missingErr = validateAllRequiredFields();
+      if (missingErr) return showMessage(missingErr, false);
 
       const stopCounter = startSecondsCounter(btnSubmitEl, 'Đang gửi báo cáo');
       localStorage.setItem('ks_nhanVien', nhanVienEl.value.trim());
 
       const payload = {
         action: 'create',
-        nhanVien: nhanVienEl.value.trim(),
-        tenCuaHang: tenCuaHangEl.value.trim(),
+        nhanVienPhuTrach: nhanVienEl.value.trim(),
+        tenKhachHang: tenKHEl.value.trim(),
         diaChi: diaChiEl.value.trim(),
         lat: latEl.value,
         lng: lngEl.value,
-        lienHe: document.getElementById('lienHe').value.trim(),
-        loaiHinh: typeCheck.value,
-        sanPhamDangDung: document.getElementById('sanPhamDangDung').value.trim(),
-        lyDoChuaDung: reasonCheck.value,
+        nguoiLienHe: nguoiLienHeEl.value.trim(),
+        sdt: sdtEl.value.trim(),
+        zalo: zaloEl.value.trim(),
+        loaiCuaHang: loaiCheck.value,
+        sanPhamQuanTam: sanPhamQuanTamEl.value.trim(),
         sanPhamDaMua: sanPhamDaMuaEl.value.trim(),
-        ngayHenChamSocLai: ngayHenChamSocLaiEl.value,
+        sanPhamDangDung: sanPhamDangDungEl.value.trim(),
+        lyDoChuaDung: lyDoCheck.value,
+        ngayHenChamSocLai: ngayHenEl.value,
         mucDoTiemNang: mucDoEl.value,
-        ghiChu: document.getElementById('ghiChu').value.trim(),
+        ghiChu: ghiChuEl.value.trim(),
         imageBase64: stampedDataUrl,
         imageMime: 'image/jpeg'
       };
@@ -714,22 +804,25 @@
         const data = await res.json();
 
         if (data.status === 'success') {
-          showMessage('Đã gửi báo cáo khảo sát thành công!', true);
-          tenCuaHangEl.value = '';
+          showMessage('Đã lưu báo cáo khảo sát thành công lên Google Sheets!', true);
+          tenKHEl.value = '';
           diaChiEl.value = '';
-          document.getElementById('lienHe').value = '';
-          loaiHinhSelectEl.value = '';
-          loaiHinhKhacInputEl.value = '';
-          loaiHinhKhacBoxEl.classList.add('hidden');
-          loaiHinhKhacInputEl.required = false;
-          document.getElementById('sanPhamDangDung').value = '';
-          lyDoChuaDungSelectEl.value = '';
+          nguoiLienHeEl.value = '';
+          sdtEl.value = '';
+          zaloEl.value = '';
+          loaiSelectEl.value = '';
+          loaiKhacInputEl.value = '';
+          loaiKhacBoxEl.classList.add('hidden');
+          loaiKhacInputEl.required = false;
+          sanPhamQuanTamEl.value = '';
+          sanPhamDaMuaEl.value = '';
+          sanPhamDangDungEl.value = '';
+          lyDoSelectEl.value = '';
           lyDoKhacInputEl.value = '';
           lyDoKhacBoxEl.classList.add('hidden');
           lyDoKhacInputEl.required = false;
-          sanPhamDaMuaEl.value = '';
-          ngayHenChamSocLaiEl.value = '';
-          document.getElementById('ghiChu').value = '';
+          ngayHenEl.value = '';
+          ghiChuEl.value = '';
           mucDoEl.value = '';
           document.querySelectorAll('.pot-btn').forEach(b => {
             b.className = 'pot-btn py-2 px-2 rounded-lg border text-xs font-semibold border-slate-300 text-slate-700';
@@ -743,7 +836,7 @@
           showMessage('Lỗi từ hệ thống: ' + (data.message || 'Không rõ nguyên nhân'), false);
         }
       } catch (err) {
-        showMessage('Không gửi được dữ liệu. Kiểm tra kết nối mạng hoặc tên tab Google Sheets.', false);
+        showMessage('Không lưu được dữ liệu: ' + (err.message || 'Kiểm tra mạng hoặc deploy Web App.'), false);
       } finally {
         stopCounter();
         btnSubmitEl.textContent = 'Gửi Báo Cáo Khảo Sát';
@@ -758,7 +851,7 @@
       resultMsgEl.classList.remove('hidden');
     }
 
-    // ==================== BÁO CÁO & SỬA DỮ LIỆU ====================
+    // ==================== BÁO CÁO & SỬA ====================
     document.querySelectorAll('.period-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         currentPeriod = btn.dataset.period;
@@ -774,7 +867,7 @@
       });
     });
 
-    [filterDateEl, filterMonthEl, filterYearEl, filterKeywordEl].forEach(el => {
+    [filterDateEl, filterMonthEl, filterYearEl, filterPotentialEl, filterKeywordEl].forEach(el => {
       el.addEventListener('input', renderFilteredReport);
       el.addEventListener('change', renderFilteredReport);
     });
@@ -784,8 +877,9 @@
     async function loadReportData() {
       reportStatusEl.textContent = 'Đang tải dữ liệu báo cáo...';
       try {
-        const res = await fetch(`${WEB_APP_URL}?action=list`);
-        const json = await res.json();
+        const res = await fetch(`${WEB_APP_URL}?action=list`, { cache: 'no-store' });
+        const text = await res.text();
+        const json = JSON.parse(text);
         if (json.status === 'success') {
           allRecords = json.data || [];
           renderFilteredReport();
@@ -793,19 +887,20 @@
           reportStatusEl.textContent = 'Lỗi tải dữ liệu: ' + (json.message || '');
         }
       } catch (err) {
-        reportStatusEl.textContent = 'Không tải được danh sách báo cáo.';
+        reportStatusEl.textContent = 'Không tải được danh sách báo cáo. Hãy kiểm tra: (1) Đã Deploy bản mới của Apps Script chưa, (2) Quyền "Who has access: Anyone".';
       }
     }
 
     function getRecordDateISO(rec) {
       if (rec.NgayISO) return String(rec.NgayISO).slice(0, 10);
-      const match = String(rec.ThoiGian || '').match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      const match = String(rec.Ngaycheckin || '').match(/(\d{2})\/(\d{2})\/(\d{4})/);
       if (match) return `${match[3]}-${match[2]}-${match[1]}`;
       return '';
     }
 
     function renderFilteredReport() {
       const kw = filterKeywordEl.value.trim().toLowerCase();
+      const pot = filterPotentialEl.value;
       const selDate = filterDateEl.value;
       const selMonth = filterMonthEl.value;
       const selYear = filterYearEl.value.trim();
@@ -815,12 +910,14 @@
         if (currentPeriod === 'day' && selDate && iso !== selDate) return false;
         if (currentPeriod === 'month' && selMonth && !iso.startsWith(selMonth)) return false;
         if (currentPeriod === 'year' && selYear && !iso.startsWith(selYear)) return false;
+        if (pot && String(rec.Mucdotiemnang || '') !== pot) return false;
 
         if (kw) {
           const hay = [
-            rec.NhanVien, rec.TenCuaHang, rec.DiaChi, rec.LoaiHinh,
-            rec.SanPhamDangDung, rec.LyDoChuaDung, rec.SanPhamDaMua,
-            rec.NgayHenChamSocLai, rec.MucDoTiemNang, rec.GhiChu, rec.NguoiLienHe_SDT
+            rec.Nhanvienphutrach, rec.Tenkhachhang, rec.Nguoilienhe, rec.SDT, rec.Zalo,
+            rec.Diachi, rec.Loaicuahang, rec.Sanphamquantam, rec.Sanphamdamua,
+            rec.Sanphamdangdung, rec.LyDoChuaDung, rec.Ngayhenchamsoclai,
+            rec.Mucdotiemnang, rec.Ghichu
           ].map(v => String(v || '').toLowerCase()).join(' ');
           if (!hay.includes(kw)) return false;
         }
@@ -828,90 +925,125 @@
       });
 
       const total = filtered.length;
-      const highCount = filtered.filter(r => r.MucDoTiemNang === 'Cao').length;
+      const highCount = filtered.filter(r => r.Mucdotiemnang === 'Cao').length;
       document.getElementById('statTotal').textContent = total;
       document.getElementById('statHigh').textContent = highCount;
       document.getElementById('statOther').textContent = total - highCount;
 
-      reportStatusEl.textContent = `Hiển thị ${total} bản ghi (tổng hệ thống: ${allRecords.length})`;
+      reportStatusEl.textContent = `Hiển thị ${total} bản ghi (tổng trên Sheet: ${allRecords.length})`;
+      window.__currentFilteredRecords = filtered;
 
       if (total === 0) {
-        reportListEl.innerHTML = '<div class="text-center text-sm text-slate-500 py-8 bg-slate-50 rounded-xl border border-dashed border-slate-300">Không có báo cáo nào khớp bộ lọc hiện tại.</div>';
+        reportTableBodyEl.innerHTML = `<tr><td colspan="14" class="text-center py-8 text-slate-500">Không có bản ghi nào khớp bộ lọc hiện tại.</td></tr>`;
+        reportCardListEl.innerHTML = `<div class="text-center text-sm text-slate-500 py-8 bg-slate-50 rounded-xl border border-dashed border-slate-300">Không có bản ghi nào khớp bộ lọc hiện tại.</div>`;
         return;
       }
 
-      reportListEl.innerHTML = filtered.map((rec, idx) => {
-        const badgeColor = rec.MucDoTiemNang === 'Cao'
-          ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-          : (rec.MucDoTiemNang === 'Trung bình'
-            ? 'bg-amber-100 text-amber-800 border-amber-200'
-            : 'bg-slate-100 text-slate-700 border-slate-200');
+      // Render bảng cho máy tính
+      reportTableBodyEl.innerHTML = filtered.map((rec, idx) => {
+        const badge = rec.Mucdotiemnang === 'Cao'
+          ? 'bg-emerald-100 text-emerald-800'
+          : (rec.Mucdotiemnang === 'Trung bình' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700');
 
-        const mapHtml = rec.ToaDo_GPS
-          ? `<a href="${escapeAttr(rec.ToaDo_GPS)}" target="_blank" class="text-blue-600 underline text-xs">Xem bản đồ</a>`
-          : '';
-        const imgHtml = rec.LinkAnh
-          ? `<a href="${escapeAttr(rec.LinkAnh)}" target="_blank" class="text-blue-600 underline text-xs">Xem ảnh</a>`
-          : '';
+        const links = [
+          rec.Anh ? `<a href="${escapeAttr(rec.Anh)}" target="_blank" class="text-blue-600 underline">Ảnh</a>` : '',
+          (rec.ToadoGPS && rec.ToadoGPS !== 'N/A') ? `<a href="${escapeAttr(rec.ToadoGPS)}" target="_blank" class="text-blue-600 underline">GPS</a>` : ''
+        ].filter(Boolean).join(' · ') || '-';
+
+        return `
+          <tr class="hover:bg-slate-50 align-top">
+            <td class="px-3 py-2.5 whitespace-nowrap">${escapeHtml(rec.Ngaycheckin || '')}</td>
+            <td class="px-3 py-2.5 font-medium whitespace-nowrap">${escapeHtml(rec.Nhanvienphutrach || '')}</td>
+            <td class="px-3 py-2.5 font-semibold text-slate-900">${escapeHtml(rec.Tenkhachhang || '')}</td>
+            <td class="px-3 py-2.5">
+              <div>${escapeHtml(rec.Nguoilienhe || '')}</div>
+              <div class="text-slate-600">ĐT: ${escapeHtml(rec.SDT || '')}</div>
+              <div class="text-slate-600">Zalo: ${escapeHtml(rec.Zalo || '')}</div>
+            </td>
+            <td class="px-3 py-2.5">${escapeHtml(rec.Loaicuahang || '')}</td>
+            <td class="px-3 py-2.5">${escapeHtml(rec.Sanphamquantam || '')}</td>
+            <td class="px-3 py-2.5">${escapeHtml(rec.Sanphamdamua || '')}</td>
+            <td class="px-3 py-2.5">${escapeHtml(rec.Sanphamdangdung || '')}</td>
+            <td class="px-3 py-2.5">${escapeHtml(rec.LyDoChuaDung || '')}</td>
+            <td class="px-3 py-2.5 whitespace-nowrap">${escapeHtml(rec.Ngayhenchamsoclai || '')}</td>
+            <td class="px-3 py-2.5 whitespace-nowrap">
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${badge}">${escapeHtml(rec.Mucdotiemnang || '')}</span>
+            </td>
+            <td class="px-3 py-2.5 min-w-[200px]">
+              <div class="text-slate-700"><span class="font-semibold">ĐC:</span> ${escapeHtml(rec.Diachi || '')}</div>
+              <div class="text-slate-600 mt-0.5"><span class="font-semibold">GC:</span> ${escapeHtml(rec.Ghichu || '')}</div>
+            </td>
+            <td class="px-3 py-2.5 whitespace-nowrap">${links}</td>
+            <td class="px-3 py-2.5 text-center whitespace-nowrap">
+              <button type="button" onclick="openEditModalByIndex(${idx})"
+                class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold border border-blue-200">
+                Sửa
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Render thẻ cho màn hình nhỏ
+      reportCardListEl.innerHTML = filtered.map((rec, idx) => {
+        const badge = rec.Mucdotiemnang === 'Cao'
+          ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+          : (rec.Mucdotiemnang === 'Trung bình' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-slate-100 text-slate-700 border-slate-200');
 
         return `
           <div class="border border-slate-200 rounded-xl p-3.5 bg-white shadow-sm space-y-2">
             <div class="flex items-start justify-between gap-2">
               <div>
-                <div class="font-bold text-sm text-slate-900">${escapeHtml(rec.TenCuaHang || 'Chưa đặt tên')}</div>
-                <div class="text-xs text-slate-500">${escapeHtml(rec.ThoiGian || '')} · NV: <span class="font-medium text-slate-700">${escapeHtml(rec.NhanVien || '')}</span></div>
+                <div class="font-bold text-sm text-slate-900">${escapeHtml(rec.Tenkhachhang || '')}</div>
+                <div class="text-xs text-slate-500">${escapeHtml(rec.Ngaycheckin || '')} · NV: <span class="font-medium text-slate-700">${escapeHtml(rec.Nhanvienphutrach || '')}</span></div>
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
-                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold border ${badgeColor}">${escapeHtml(rec.MucDoTiemNang || 'N/A')}</span>
+                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold border ${badge}">${escapeHtml(rec.Mucdotiemnang || '')}</span>
                 <button type="button" onclick="openEditModalByIndex(${idx})"
                   class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold">
                   Sửa
                 </button>
               </div>
             </div>
-
             <div class="text-xs text-slate-700 space-y-1">
-              <div><span class="font-semibold">Loại hình:</span> ${escapeHtml(rec.LoaiHinh || '-')}</div>
-              ${rec.DiaChi ? `<div><span class="font-semibold">Địa chỉ:</span> ${escapeHtml(rec.DiaChi)}</div>` : ''}
-              ${rec.NguoiLienHe_SDT ? `<div><span class="font-semibold">Liên hệ:</span> ${escapeHtml(rec.NguoiLienHe_SDT)}</div>` : ''}
-              ${rec.SanPhamDangDung ? `<div><span class="font-semibold">Đang dùng:</span> ${escapeHtml(rec.SanPhamDangDung)}</div>` : ''}
-              ${rec.LyDoChuaDung ? `<div><span class="font-semibold">Lý do chưa dùng:</span> ${escapeHtml(rec.LyDoChuaDung)}</div>` : ''}
-              ${rec.SanPhamDaMua ? `<div><span class="font-semibold">Sản phẩm đã mua:</span> ${escapeHtml(rec.SanPhamDaMua)}</div>` : ''}
-              ${rec.NgayHenChamSocLai ? `<div><span class="font-semibold">Ngày hẹn chăm sóc lại:</span> ${escapeHtml(rec.NgayHenChamSocLai)}</div>` : ''}
-              ${rec.GhiChu ? `<div><span class="font-semibold">Ghi chú:</span> ${escapeHtml(rec.GhiChu)}</div>` : ''}
+              <div><span class="font-semibold">Loại cửa hàng:</span> ${escapeHtml(rec.Loaicuahang || '')}</div>
+              <div><span class="font-semibold">Liên hệ:</span> ${escapeHtml(rec.Nguoilienhe || '')} | SĐT: ${escapeHtml(rec.SDT || '')} | Zalo: ${escapeHtml(rec.Zalo || '')}</div>
+              <div><span class="font-semibold">Địa chỉ:</span> ${escapeHtml(rec.Diachi || '')}</div>
+              <div><span class="font-semibold">SP quan tâm:</span> ${escapeHtml(rec.Sanphamquantam || '')}</div>
+              <div><span class="font-semibold">SP đã mua:</span> ${escapeHtml(rec.Sanphamdamua || '')}</div>
+              <div><span class="font-semibold">SP đang dùng:</span> ${escapeHtml(rec.Sanphamdangdung || '')}</div>
+              <div><span class="font-semibold">Lý do chưa dùng:</span> ${escapeHtml(rec.LyDoChuaDung || '')}</div>
+              <div><span class="font-semibold">Ngày hẹn chăm sóc lại:</span> ${escapeHtml(rec.Ngayhenchamsoclai || '')}</div>
+              <div><span class="font-semibold">Ghi chú:</span> ${escapeHtml(rec.Ghichu || '')}</div>
             </div>
-
-            <div class="flex items-center gap-4 pt-1 border-t border-slate-100">
-              ${imgHtml}
-              ${mapHtml}
+            <div class="flex items-center gap-4 pt-1 border-t border-slate-100 text-xs">
+              ${rec.Anh ? `<a href="${escapeAttr(rec.Anh)}" target="_blank" class="text-blue-600 underline">Xem ảnh</a>` : ''}
+              ${(rec.ToadoGPS && rec.ToadoGPS !== 'N/A') ? `<a href="${escapeAttr(rec.ToadoGPS)}" target="_blank" class="text-blue-600 underline">Xem GPS</a>` : ''}
             </div>
           </div>
         `;
       }).join('');
-
-      window.__currentFilteredRecords = filtered;
     }
 
     // Modal sửa dữ liệu
     const editModal = document.getElementById('editModal');
-    const editLoaiHinhSelect = document.getElementById('editLoaiHinhSelect');
-    const editLoaiHinhKhacBox = document.getElementById('editLoaiHinhKhacBox');
-    const editLoaiHinhKhacInput = document.getElementById('editLoaiHinhKhacInput');
+    const editLoaiSelect = document.getElementById('editLoaiCuaHangSelect');
+    const editLoaiKhacBox = document.getElementById('editLoaiCuaHangKhacBox');
+    const editLoaiKhacInput = document.getElementById('editLoaiCuaHangKhacInput');
 
     const editLyDoSelect = document.getElementById('editLyDoSelect');
     const editLyDoKhacBox = document.getElementById('editLyDoKhacBox');
     const editLyDoKhacInput = document.getElementById('editLyDoKhacInput');
-
     const editErrorMsg = document.getElementById('editErrorMsg');
 
-    editLoaiHinhSelect.addEventListener('change', () => {
-      if (editLoaiHinhSelect.value === 'Khác') {
-        editLoaiHinhKhacBox.classList.remove('hidden');
-        editLoaiHinhKhacInput.required = true;
+    editLoaiSelect.addEventListener('change', () => {
+      if (editLoaiSelect.value === 'Khác') {
+        editLoaiKhacBox.classList.remove('hidden');
+        editLoaiKhacInput.required = true;
       } else {
-        editLoaiHinhKhacBox.classList.add('hidden');
-        editLoaiHinhKhacInput.required = false;
-        editLoaiHinhKhacInput.value = '';
+        editLoaiKhacBox.classList.add('hidden');
+        editLoaiKhacInput.required = false;
+        editLoaiKhacInput.value = '';
       }
     });
 
@@ -933,38 +1065,32 @@
       editErrorMsg.classList.add('hidden');
       document.getElementById('editRowIndex').value = rec._rowIndex || '';
       document.getElementById('editRecordId').value = rec.ID || '';
-      document.getElementById('editNhanVien').value = rec.NhanVien || '';
-      document.getElementById('editTenCuaHang').value = rec.TenCuaHang || '';
-      document.getElementById('editDiaChi').value = rec.DiaChi || '';
-      document.getElementById('editLienHe').value = rec.NguoiLienHe_SDT || '';
+      document.getElementById('editNhanVien').value = rec.Nhanvienphutrach || '';
+      document.getElementById('editTenKH').value = rec.Tenkhachhang || '';
+      document.getElementById('editDiaChi').value = rec.Diachi || '';
+      document.getElementById('editNguoiLienHe').value = rec.Nguoilienhe || '';
+      document.getElementById('editSDT').value = rec.SDT || '';
+      document.getElementById('editZalo').value = rec.Zalo || '';
 
-      const lhVal = String(rec.LoaiHinh || '').trim();
+      const lhVal = String(rec.Loaicuahang || '').trim();
       if (PRESET_TYPES.includes(lhVal)) {
-        editLoaiHinhSelect.value = lhVal;
-        editLoaiHinhKhacBox.classList.add('hidden');
-        editLoaiHinhKhacInput.required = false;
-        editLoaiHinhKhacInput.value = '';
-      } else if (lhVal) {
-        editLoaiHinhSelect.value = 'Khác';
-        editLoaiHinhKhacBox.classList.remove('hidden');
-        editLoaiHinhKhacInput.required = true;
-        editLoaiHinhKhacInput.value = lhVal;
+        editLoaiSelect.value = lhVal;
+        editLoaiKhacBox.classList.add('hidden');
+        editLoaiKhacInput.required = false;
+        editLoaiKhacInput.value = '';
       } else {
-        editLoaiHinhSelect.value = 'Gara sửa chữa ô tô';
-        editLoaiHinhKhacBox.classList.add('hidden');
-        editLoaiHinhKhacInput.required = false;
-        editLoaiHinhKhacInput.value = '';
+        editLoaiSelect.value = 'Khác';
+        editLoaiKhacBox.classList.remove('hidden');
+        editLoaiKhacInput.required = true;
+        editLoaiKhacInput.value = lhVal;
       }
 
-      document.getElementById('editSanPham').value = rec.SanPhamDangDung || '';
+      document.getElementById('editSanPhamQuanTam').value = rec.Sanphamquantam || '';
+      document.getElementById('editSanPhamDaMua').value = rec.Sanphamdamua || '';
+      document.getElementById('editSanPhamDangDung').value = rec.Sanphamdangdung || '';
 
       const reasonVal = String(rec.LyDoChuaDung || '').trim();
-      if (!reasonVal) {
-        editLyDoSelect.value = '';
-        editLyDoKhacBox.classList.add('hidden');
-        editLyDoKhacInput.required = false;
-        editLyDoKhacInput.value = '';
-      } else if (PRESET_REASONS.includes(reasonVal)) {
+      if (PRESET_REASONS.includes(reasonVal)) {
         editLyDoSelect.value = reasonVal;
         editLyDoKhacBox.classList.add('hidden');
         editLyDoKhacInput.required = false;
@@ -976,10 +1102,9 @@
         editLyDoKhacInput.value = reasonVal;
       }
 
-      document.getElementById('editSanPhamDaMua').value = rec.SanPhamDaMua || '';
-      document.getElementById('editNgayHen').value = rec.NgayHenChamSocLai ? String(rec.NgayHenChamSocLai).slice(0, 10) : '';
-      document.getElementById('editMucDo').value = rec.MucDoTiemNang || 'Trung bình';
-      document.getElementById('editGhiChu').value = rec.GhiChu || '';
+      document.getElementById('editNgayHen').value = rec.Ngayhenchamsoclai ? String(rec.Ngayhenchamsoclai).slice(0, 10) : '';
+      document.getElementById('editMucDo').value = rec.Mucdotiemnang || 'Cao';
+      document.getElementById('editGhiChu').value = rec.Ghichu || '';
 
       editModal.classList.remove('hidden');
       editModal.classList.add('flex');
@@ -997,26 +1122,26 @@
       e.preventDefault();
       editErrorMsg.classList.add('hidden');
 
-      let finalLoaiHinh = editLoaiHinhSelect.value;
-      if (finalLoaiHinh === 'Khác') {
-        const customText = editLoaiHinhKhacInput.value.trim();
-        if (!validateMeaningfulText(customText)) {
-          editErrorMsg.textContent = 'Vui lòng nhập nội dung cụ thể cho loại hình điểm khảo sát.';
+      let finalLoai = editLoaiSelect.value;
+      if (finalLoai === 'Khác') {
+        const v = editLoaiKhacInput.value.trim();
+        if (!validateMeaningfulText(v)) {
+          editErrorMsg.textContent = 'Vui lòng nhập nội dung cụ thể cho Loại cửa hàng.';
           editErrorMsg.classList.remove('hidden');
           return;
         }
-        finalLoaiHinh = customText;
+        finalLoai = v;
       }
 
       let finalLyDo = editLyDoSelect.value;
       if (finalLyDo === 'Lý do khác') {
-        const customReason = editLyDoKhacInput.value.trim();
-        if (!validateMeaningfulText(customReason)) {
-          editErrorMsg.textContent = 'Vui lòng nhập nội dung cụ thể cho lý do chưa dùng sản phẩm.';
+        const v = editLyDoKhacInput.value.trim();
+        if (!validateMeaningfulText(v)) {
+          editErrorMsg.textContent = 'Vui lòng nhập nội dung cụ thể cho Lý do chưa dùng.';
           editErrorMsg.classList.remove('hidden');
           return;
         }
-        finalLyDo = customReason;
+        finalLyDo = v;
       }
 
       const saveBtn = document.getElementById('saveEditBtn');
@@ -1026,14 +1151,17 @@
         action: 'update',
         rowIndex: document.getElementById('editRowIndex').value,
         id: document.getElementById('editRecordId').value,
-        nhanVien: document.getElementById('editNhanVien').value.trim(),
-        tenCuaHang: document.getElementById('editTenCuaHang').value.trim(),
+        nhanVienPhuTrach: document.getElementById('editNhanVien').value.trim(),
+        tenKhachHang: document.getElementById('editTenKH').value.trim(),
         diaChi: document.getElementById('editDiaChi').value.trim(),
-        lienHe: document.getElementById('editLienHe').value.trim(),
-        loaiHinh: finalLoaiHinh,
-        sanPhamDangDung: document.getElementById('editSanPham').value.trim(),
-        lyDoChuaDung: finalLyDo,
+        nguoiLienHe: document.getElementById('editNguoiLienHe').value.trim(),
+        sdt: document.getElementById('editSDT').value.trim(),
+        zalo: document.getElementById('editZalo').value.trim(),
+        loaiCuaHang: finalLoai,
+        sanPhamQuanTam: document.getElementById('editSanPhamQuanTam').value.trim(),
         sanPhamDaMua: document.getElementById('editSanPhamDaMua').value.trim(),
+        sanPhamDangDung: document.getElementById('editSanPhamDangDung').value.trim(),
+        lyDoChuaDung: finalLyDo,
         ngayHenChamSocLai: document.getElementById('editNgayHen').value,
         mucDoTiemNang: document.getElementById('editMucDo').value,
         ghiChu: document.getElementById('editGhiChu').value.trim()
