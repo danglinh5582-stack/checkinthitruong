@@ -145,8 +145,8 @@
             </select>
           </div>
           <div>
-            <label class="lbl">Ngày hẹn chăm sóc lại <span class="text-red-500">*</span></label>
-            <input type="date" id="ngayHenChamSocLai" required class="fld" />
+            <label class="lbl">Ngày hẹn chăm sóc lại <span class="text-slate-500 font-normal text-base">(không bắt buộc)</span></label>
+            <input type="date" id="ngayHenChamSocLai" class="fld" />
           </div>
         </div>
 
@@ -344,7 +344,7 @@
               <option value="Lý do khác">Lý do khác</option>
             </select>
           </div>
-          <div><label class="lbl">Ngày hẹn chăm sóc lại *</label><input type="date" id="editNgayHen" required class="fld" /></div>
+          <div><label class="lbl">Ngày hẹn chăm sóc lại <span class="text-slate-500 font-normal text-base">(không bắt buộc)</span></label><input type="date" id="editNgayHen" class="fld" /></div>
         </div>
 
         <div id="editLyDoKhacBox" class="hidden">
@@ -374,7 +374,7 @@
   </div>
 
   <script>
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzXNKe40LTDCpj4YsQsCxKBlS4ahh0MCRM_MIAQhEg2MfF_qUN8QVAJHJJ9JADWnfKttQ/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxhFaMLyWH6anW05tIv6Nc4HnXwcK5AiedcqHorNqvE87-Xw-_9vTb_9qU7jFR7nSGLWw/exec';
 
     const PRESET_TYPES = [
       'Gara sửa chữa ô tô',
@@ -704,7 +704,6 @@
         [validateMeaningfulText(sanPhamQuanTamEl.value), 'Vui lòng nhập đầy đủ Sản phẩm quan tâm.'],
         [validateMeaningfulText(sanPhamDaMuaEl.value), 'Vui lòng nhập đầy đủ Sản phẩm đã mua.'],
         [validateMeaningfulText(sanPhamDangDungEl.value), 'Vui lòng nhập đầy đủ Sản phẩm đang dùng.'],
-        [Boolean(ngayHenEl.value), 'Vui lòng chọn Ngày hẹn chăm sóc lại.'],
         [Boolean(mucDoEl.value), 'Vui lòng chọn Mức độ tiềm năng.'],
         [validateMeaningfulText(ghiChuEl.value), 'Vui lòng nhập đầy đủ Ghi chú.']
       ];
@@ -829,20 +828,57 @@
 
     document.getElementById('btnRefreshReport').addEventListener('click', loadReportData);
 
+    // Chuẩn hóa tên cột: bỏ dấu, chữ thường, bỏ ký tự đặc biệt
+    function normKey(k) {
+      return String(k || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd').replace(/[^a-z0-9]/g, '');
+    }
+
+    const CANON = {
+      tt: 'TT', ngaycheckin: 'Ngaycheckin', tenkhachhang: 'Tenkhachhang', nguoilienhe: 'Nguoilienhe',
+      sdt: 'SDT', diachi: 'Diachi', toadogps: 'ToadoGPS', loaicuahang: 'Loaicuahang',
+      sanphamquantam: 'Sanphamquantam', sanphamdamua: 'Sanphamdamua', sanphamdangdung: 'Sanphamdangdung',
+      lydochuadung: 'LyDoChuaDung', lydochuadungsanphamcongty: 'LyDoChuaDung',
+      ngayhenchamsoclai: 'Ngayhenchamsoclai', mucdotiemnang: 'Mucdotiemnang', anh: 'Anh', zalo: 'Zalo',
+      nhanvienphutrach: 'Nhanvienphutrach', ghichu: 'Ghichu', id: 'ID', ngayiso: 'NgayISO'
+    };
+
+    // Nhận dữ liệu bất kể Apps Script trả về khóa kiểu nào -> đưa về khóa chuẩn
+    function normalizeRecord(raw, i) {
+      const rec = { _rowIndex: raw._rowIndex || (i + 2), _extra: Array.isArray(raw._extra) ? raw._extra.slice() : [] };
+      Object.keys(raw).forEach(k => {
+        if (k === '_rowIndex' || k === '_extra') return;
+        const canon = CANON[normKey(k)];
+        const v = raw[k] === null || raw[k] === undefined ? '' : String(raw[k]);
+        if (canon) { if (!rec[canon]) rec[canon] = v; }
+        else if (v.trim() !== '') rec._extra.push({ header: k, value: v });
+      });
+      return rec;
+    }
+
     async function loadReportData() {
       reportStatusEl.textContent = 'Đang tải dữ liệu báo cáo...';
+      let text = '';
       try {
-        const res = await fetch(`${WEB_APP_URL}?action=list`, { cache: 'no-store' });
-        const text = await res.text();
-        const json = JSON.parse(text);
+        const res = await fetch(`${WEB_APP_URL}?action=list&t=${Date.now()}`, { cache: 'no-store' });
+        text = await res.text();
+        let json;
+        try { json = JSON.parse(text); }
+        catch (e) {
+          reportStatusEl.textContent = 'Máy chủ không trả về JSON. Hãy Deploy lại Apps Script (Manage deployments → Edit → New version) với "Who has access: Anyone". Phản hồi: ' + text.slice(0, 120).replace(/\s+/g, ' ');
+          return;
+        }
         if (json.status === 'success') {
-          allRecords = json.data || [];
+          const list = Array.isArray(json.data) ? json.data : [];
+          allRecords = list.map(normalizeRecord);
+          // Mới nhất lên đầu
+          allRecords.sort((a, b) => (b._rowIndex || 0) - (a._rowIndex || 0));
           renderFilteredReport();
         } else {
           reportStatusEl.textContent = 'Lỗi tải dữ liệu: ' + (json.message || '');
         }
       } catch (err) {
-        reportStatusEl.textContent = 'Không tải được danh sách báo cáo. Kiểm tra Deploy Web App và quyền "Who has access: Anyone".';
+        reportStatusEl.textContent = 'Không tải được danh sách báo cáo (' + (err.message || 'lỗi mạng') + '). Kiểm tra Deploy Web App và quyền "Who has access: Anyone".';
       }
     }
 
@@ -911,6 +947,16 @@
       return str;
     }
 
+    function renderExtras(rec) {
+      const ex = rec._extra || [];
+      if (!ex.length) return '';
+      return ex.map(x => `<div><span class="font-semibold">${escapeHtml(x.header)}:</span> ${escapeHtml(x.value)}</div>`).join('');
+    }
+    function driveThumb(url) {
+      const m = String(url || '').match(/\/d\/([\w-]+)|[?&]id=([\w-]+)/);
+      const id = m && (m[1] || m[2]);
+      return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w400` : '';
+    }
     function cleanPhone(v) { return String(v || '').replace(/^'/, ''); }
 
     function badgeClass(level) {
@@ -938,7 +984,7 @@
             rec.Nhanvienphutrach, rec.Tenkhachhang, rec.Nguoilienhe, rec.SDT, rec.Zalo,
             rec.Diachi, rec.Loaicuahang, rec.Sanphamquantam, rec.Sanphamdamua,
             rec.Sanphamdangdung, rec.LyDoChuaDung, rec.Ngayhenchamsoclai,
-            rec.Mucdotiemnang, rec.Ghichu
+            rec.Mucdotiemnang, rec.Ghichu, rec.TT, ...(rec._extra || []).map(x => x.value)
           ].map(v => String(v || '').toLowerCase()).join(' ');
           if (!hay.includes(kw)) return false;
         }
@@ -963,12 +1009,13 @@
       reportTableBodyEl.innerHTML = filtered.map((rec, idx) => {
         const links = [
           rec.Anh ? `<a href="${escapeAttr(rec.Anh)}" target="_blank" class="text-blue-600 underline font-semibold">Ảnh</a>` : '',
-          (rec.ToadoGPS && rec.ToadoGPS !== 'N/A') ? `<a href="${escapeAttr(rec.ToadoGPS)}" target="_blank" class="text-blue-600 underline font-semibold">GPS</a>` : ''
+          (/^https?:/i.test(rec.ToadoGPS || '')) ? `<a href="${escapeAttr(rec.ToadoGPS)}" target="_blank" class="text-blue-600 underline font-semibold">GPS</a>` : ''
         ].filter(Boolean).join(' · ');
 
         return `
           <tr class="hover:bg-slate-50 align-top">
             <td class="px-3 py-3">
+              <div class="text-slate-500 text-sm">#${escapeHtml(rec.TT || '')}</div>
               <div class="font-semibold">${escapeHtml(formatDisplayCheckin(rec.Ngaycheckin))}</div>
               <div class="text-slate-600 mt-1">NV: <span class="font-semibold text-slate-800">${escapeHtml(rec.Nhanvienphutrach || '')}</span></div>
             </td>
@@ -992,7 +1039,11 @@
               <div class="font-semibold text-blue-800">Hẹn: ${escapeHtml(formatDisplayDateOnly(rec.Ngayhenchamsoclai))}</div>
             </td>
             <td class="px-3 py-3"><span class="badge ${badgeClass(rec.Mucdotiemnang)}">${escapeHtml(rec.Mucdotiemnang || '')}</span></td>
-            <td class="px-3 py-3 text-slate-700">${escapeHtml(rec.Ghichu || '')}</td>
+            <td class="px-3 py-3 text-slate-700 space-y-1">
+              <div>${escapeHtml(rec.Ghichu || '')}</div>
+              ${renderExtras(rec)}
+              ${(rec.ToadoGPS && rec.ToadoGPS !== 'N/A' && !/^https?:/i.test(rec.ToadoGPS)) ? `<div class="text-sm text-slate-500">GPS: ${escapeHtml(rec.ToadoGPS)}</div>` : ''}
+            </td>
             <td class="px-3 py-3 text-center space-y-2">
               <button type="button" onclick="openEditModalByIndex(${idx})"
                 class="w-full px-2 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200">Sửa</button>
@@ -1007,7 +1058,7 @@
           <div class="border border-slate-200 rounded-xl p-4 bg-white shadow-sm space-y-3">
             <div class="flex items-start justify-between gap-2">
               <div class="min-w-0">
-                <div class="font-extrabold text-lg text-slate-900 leading-snug">${escapeHtml(rec.Tenkhachhang || '')}</div>
+                <div class="font-extrabold text-lg text-slate-900 leading-snug">${rec.TT ? '#' + escapeHtml(rec.TT) + ' · ' : ''}${escapeHtml(rec.Tenkhachhang || '')}</div>
                 <div class="text-base text-slate-600">${escapeHtml(formatDisplayCheckin(rec.Ngaycheckin))}</div>
                 <div class="text-base text-slate-600">NV: <span class="font-semibold text-slate-800">${escapeHtml(rec.Nhanvienphutrach || '')}</span></div>
               </div>
@@ -1024,12 +1075,14 @@
               <div><span class="font-bold">Lý do chưa dùng:</span> ${escapeHtml(rec.LyDoChuaDung || '')}</div>
               <div><span class="font-bold">Hẹn chăm sóc lại:</span> <span class="font-semibold text-blue-800">${escapeHtml(formatDisplayDateOnly(rec.Ngayhenchamsoclai))}</span></div>
               <div><span class="font-bold">Ghi chú:</span> ${escapeHtml(rec.Ghichu || '')}</div>
+              ${renderExtras(rec)}
+              ${driveThumb(rec.Anh) ? `<a href="${escapeAttr(rec.Anh)}" target="_blank"><img src="${escapeAttr(driveThumb(rec.Anh))}" alt="Ảnh" loading="lazy" onerror="this.style.display='none'" class="mt-2 w-full max-h-56 object-cover rounded-lg border border-slate-200" /></a>` : ''}
             </div>
             <div class="flex items-center gap-3 pt-3 border-t border-slate-100 text-base">
               <button type="button" onclick="openEditModalByIndex(${idx})"
                 class="px-4 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200">Sửa</button>
               ${rec.Anh ? `<a href="${escapeAttr(rec.Anh)}" target="_blank" class="text-blue-600 underline font-semibold">Xem ảnh</a>` : ''}
-              ${(rec.ToadoGPS && rec.ToadoGPS !== 'N/A') ? `<a href="${escapeAttr(rec.ToadoGPS)}" target="_blank" class="text-blue-600 underline font-semibold">Xem GPS</a>` : ''}
+              ${(/^https?:/i.test(rec.ToadoGPS || '')) ? `<a href="${escapeAttr(rec.ToadoGPS)}" target="_blank" class="text-blue-600 underline font-semibold">Xem GPS</a>` : ''}
             </div>
           </div>
         `;
@@ -1048,12 +1101,13 @@
       }
 
       const headers = [
-        'Ngày check-in', 'NV phụ trách', 'Tên khách hàng', 'Người liên hệ', 'SĐT', 'Zalo',
+        'TT', 'Ngày check-in', 'NV phụ trách', 'Tên khách hàng', 'Người liên hệ', 'SĐT', 'Zalo',
         'Loại cửa hàng', 'SP quan tâm', 'SP đã mua', 'SP đang dùng', 'Lý do chưa dùng',
         'Ngày hẹn chăm sóc lại', 'Mức độ tiềm năng', 'Địa chỉ', 'Ghi chú', 'Link ảnh', 'Link GPS'
       ];
 
       const aoa = [headers].concat(rows.map(r => [
+        r.TT || '',
         formatDisplayCheckin(r.Ngaycheckin),
         r.Nhanvienphutrach || '',
         r.Tenkhachhang || '',
@@ -1081,7 +1135,7 @@
 
       if (window.XLSX) {
         const ws = XLSX.utils.aoa_to_sheet(aoa);
-        ws['!cols'] = [18, 18, 28, 18, 14, 14, 24, 24, 22, 22, 30, 16, 14, 40, 40, 30, 30].map(w => ({ wch: w }));
+        ws['!cols'] = [6, 18, 18, 28, 18, 14, 14, 24, 24, 22, 22, 30, 16, 14, 40, 40, 30, 30].map(w => ({ wch: w }));
         ws['!autofilter'] = { ref: ws['!ref'] };
         ws['!freeze'] = { xSplit: 0, ySplit: 1 };
         const wb = XLSX.utils.book_new();
