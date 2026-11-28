@@ -92,6 +92,7 @@
           <div>
             <label class="lbl">Zalo <span class="text-red-500">*</span></label>
             <input type="text" id="zalo" required placeholder="Số hoặc tên Zalo..." class="fld" />
+            <div id="zaloHint" class="text-sm mt-1"></div>
           </div>
         </div>
 
@@ -222,6 +223,15 @@
             </select>
           </div>
 
+          <div class="w-full sm:w-auto">
+            <label class="block text-sm font-bold text-slate-600 mb-1">Check lại</label>
+            <select id="filterCheck" class="fld !py-2 !text-base">
+              <option value="">Tất cả</option>
+              <option value="none">Chưa check lại</option>
+              <option value="done">Đã check lại</option>
+            </select>
+          </div>
+
           <div class="w-full sm:flex-1 sm:min-w-[220px]">
             <label class="block text-sm font-bold text-slate-600 mb-1">Tìm tên KH / NV / sản phẩm</label>
             <input type="text" id="filterKeyword" placeholder="Gõ từ khóa để lọc nhanh..." class="fld !py-2 !text-base" />
@@ -264,8 +274,8 @@
         <div class="hidden xl:block border border-slate-200 rounded-xl">
           <table id="reportTable" class="w-full table-fixed text-[20px] text-left border-collapse">
             <colgroup>
-              <col style="width:9%"><col style="width:17%"><col style="width:12%"><col style="width:9%">
-              <col style="width:17%"><col style="width:11%"><col style="width:7%"><col style="width:11%"><col style="width:7%">
+              <col style="width:8%"><col style="width:13%"><col style="width:12%"><col style="width:8%">
+              <col style="width:15%"><col style="width:10%"><col style="width:6%"><col style="width:20%"><col style="width:8%">
             </colgroup>
             <thead class="bg-slate-800 text-white">
               <tr>
@@ -382,6 +392,42 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL CHECK LẠI ==================== -->
+  <div id="checkModal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-2 sm:p-4 z-50">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl max-h-[96vh] overflow-y-auto p-4 sm:p-6 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h2 class="text-xl font-extrabold text-slate-800">Check lại khách hàng</h2>
+        <button type="button" id="closeCheckModal" class="text-slate-500 hover:text-slate-800 text-3xl font-bold px-3 leading-none">&times;</button>
+      </div>
+      <div id="checkInfo" class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-base space-y-1"></div>
+      <div>
+        <div class="font-bold text-slate-800 mb-1.5">Lịch sử check lại</div>
+        <div id="checkHistory" class="space-y-2"></div>
+      </div>
+      <form id="checkForm" class="space-y-4 border-t pt-4">
+        <input type="hidden" id="checkRecordId" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><label class="lbl">Người check lại *</label><input type="text" id="checkNguoi" required placeholder="Họ tên người check..." class="fld" /></div>
+          <div>
+            <label class="lbl">Xác nhận số Zalo</label>
+            <select id="checkZalo" class="fld">
+              <option value="Chưa kiểm tra">Chưa kiểm tra</option>
+              <option value="Đúng số Zalo">Đúng số Zalo</option>
+              <option value="Sai số Zalo">Sai số Zalo</option>
+            </select>
+          </div>
+        </div>
+        <div><label class="lbl">Ghi chú check lại *</label><textarea id="checkGhiChu" rows="4" required placeholder="Thông tin khi gọi / gặp lại: nhu cầu, báo giá, kết quả..." class="fld"></textarea></div>
+        <div class="text-sm text-slate-500">Ngày giờ check lại được hệ thống tự ghi khi bấm Lưu.</div>
+        <div id="checkErrorMsg" class="hidden text-base text-red-700 bg-red-50 border border-red-200 rounded-lg p-3"></div>
+        <div class="flex justify-end gap-3">
+          <button type="button" id="cancelCheckBtn" class="px-5 py-3 rounded-xl border border-slate-300 text-base font-bold text-slate-700">Đóng</button>
+          <button type="submit" id="saveCheckBtn" class="px-5 py-3 rounded-xl bg-emerald-600 text-white text-base font-bold hover:bg-emerald-700">Lưu check lại</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxhFaMLyWH6anW05tIv6Nc4HnXwcK5AiedcqHorNqvE87-Xw-_9vTb_9qU7jFR7nSGLWw/exec';
 
@@ -449,6 +495,7 @@
     const filterPotentialEl = document.getElementById('filterPotential');
     const filterKeywordEl = document.getElementById('filterKeyword');
     const filterStaffEl = document.getElementById('filterStaff');
+    const filterCheckEl = document.getElementById('filterCheck');
     const reportStatusEl = document.getElementById('reportStatus');
     const reportTableBodyEl = document.getElementById('reportTableBody');
     const reportCardListEl = document.getElementById('reportCardList');
@@ -712,6 +759,7 @@
         [validateMeaningfulText(nguoiLienHeEl.value), 'Vui lòng nhập đầy đủ Người liên hệ.'],
         [validateMeaningfulText(sdtEl.value), 'Vui lòng nhập đầy đủ SĐT.'],
         [validateMeaningfulText(zaloEl.value), 'Vui lòng nhập đầy đủ Zalo.'],
+        [zaloInfo(zaloEl.value).type !== 'bad', 'Số Zalo chưa đúng định dạng (10 số, bắt đầu bằng 0, ví dụ 0986378288).'],
         [validateMeaningfulText(sanPhamQuanTamEl.value), 'Vui lòng nhập đầy đủ Sản phẩm quan tâm.'],
         [validateMeaningfulText(sanPhamDaMuaEl.value), 'Vui lòng nhập đầy đủ Sản phẩm đã mua.'],
         [validateMeaningfulText(sanPhamDangDungEl.value), 'Vui lòng nhập đầy đủ Sản phẩm đang dùng.'],
@@ -777,6 +825,7 @@
           nguoiLienHeEl.value = '';
           sdtEl.value = '';
           zaloEl.value = '';
+          updateZaloHint();
           loaiSelectEl.value = '';
           loaiKhacInputEl.value = '';
           loaiKhacBoxEl.classList.add('hidden');
@@ -832,7 +881,7 @@
       });
     });
 
-    [filterDateEl, filterMonthEl, filterYearEl, filterPotentialEl, filterStaffEl, filterKeywordEl].forEach(el => {
+    [filterDateEl, filterMonthEl, filterYearEl, filterPotentialEl, filterStaffEl, filterCheckEl, filterKeywordEl].forEach(el => {
       el.addEventListener('input', renderFilteredReport);
       el.addEventListener('change', renderFilteredReport);
     });
@@ -856,9 +905,9 @@
 
     // Nhận dữ liệu bất kể Apps Script trả về khóa kiểu nào -> đưa về khóa chuẩn
     function normalizeRecord(raw, i) {
-      const rec = { _rowIndex: raw._rowIndex || (i + 2), _extra: Array.isArray(raw._extra) ? raw._extra.slice() : [] };
+      const rec = { _rowIndex: raw._rowIndex || (i + 2), _extra: Array.isArray(raw._extra) ? raw._extra.slice() : [], _checks: Array.isArray(raw._checks) ? raw._checks : [] };
       Object.keys(raw).forEach(k => {
-        if (k === '_rowIndex' || k === '_extra') return;
+        if (k === '_rowIndex' || k === '_extra' || k === '_checks') return;
         const canon = CANON[normKey(k)];
         const v = raw[k] === null || raw[k] === undefined ? '' : String(raw[k]);
         if (canon) { if (!rec[canon]) rec[canon] = v; }
@@ -990,6 +1039,7 @@
       const kw = filterKeywordEl.value.trim().toLowerCase();
       const pot = filterPotentialEl.value;
       const staff = filterStaffEl.value;
+      const chk = filterCheckEl.value;
       const selDate = filterDateEl.value;
       const selMonth = filterMonthEl.value;
       const selYear = filterYearEl.value.trim();
@@ -1001,6 +1051,8 @@
         if (currentPeriod === 'year' && selYear && !iso.startsWith(selYear)) return false;
         if (pot && String(rec.Mucdotiemnang || '') !== pot) return false;
         if (staff && String(rec.Nhanvienphutrach || '').trim() !== staff) return false;
+        if (chk === 'none' && (rec._checks || []).length) return false;
+        if (chk === 'done' && !(rec._checks || []).length) return false;
 
         if (kw) {
           const hay = [
@@ -1049,7 +1101,7 @@
             <td class="px-3 py-3">
               <div class="font-semibold">${escapeHtml(rec.Nguoilienhe || '')}</div>
               <div class="text-slate-700">ĐT: ${escapeHtml(cleanPhone(rec.SDT))}</div>
-              <div class="text-slate-700">Zalo: ${escapeHtml(cleanPhone(rec.Zalo))}</div>
+              <div class="text-slate-700">Zalo: ${zaloLink(rec.Zalo) + zaloStatusBadge(rec)}</div>
             </td>
             <td class="px-3 py-3">${escapeHtml(rec.Loaicuahang || '')}</td>
             <td class="px-3 py-3 space-y-1">
@@ -1066,10 +1118,16 @@
               <div>${escapeHtml(rec.Ghichu || '')}</div>
               ${renderExtras(rec)}
               ${(rec.ToadoGPS && rec.ToadoGPS !== 'N/A' && !/^https?:/i.test(rec.ToadoGPS)) ? `<div class="text-sm text-slate-500">GPS: ${escapeHtml(rec.ToadoGPS)}</div>` : ''}
+              <div class="pt-2 mt-1 border-t border-slate-200 space-y-1.5">
+                <div class="font-bold text-emerald-800 text-[0.9em]">Check lại (${(rec._checks || []).length})</div>
+                ${renderChecks(rec)}
+              </div>
             </td>
             <td class="px-3 py-3 text-center space-y-2">
               <button type="button" onclick="openEditModalByIndex(${idx})"
                 class="w-full px-2 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200">Sửa</button>
+              <button type="button" onclick="openCheckModalByIndex(${idx})"
+                class="w-full px-2 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold">Check lại</button>
               <div>${links || '-'}</div>
             </td>
           </tr>
@@ -1090,7 +1148,7 @@
             <div class="text-base text-slate-800 space-y-1.5 break-words">
               <div><span class="font-bold">Loại cửa hàng:</span> ${escapeHtml(rec.Loaicuahang || '')}</div>
               <div><span class="font-bold">Liên hệ:</span> ${escapeHtml(rec.Nguoilienhe || '')}</div>
-              <div><span class="font-bold">SĐT:</span> ${escapeHtml(cleanPhone(rec.SDT))} &nbsp;|&nbsp; <span class="font-bold">Zalo:</span> ${escapeHtml(cleanPhone(rec.Zalo))}</div>
+              <div><span class="font-bold">SĐT:</span> ${escapeHtml(cleanPhone(rec.SDT))} &nbsp;|&nbsp; <span class="font-bold">Zalo:</span> ${zaloLink(rec.Zalo) + zaloStatusBadge(rec)}</div>
               <div><span class="font-bold">Địa chỉ:</span> ${escapeHtml(rec.Diachi || '')}</div>
               <div><span class="font-bold">SP quan tâm:</span> ${escapeHtml(rec.Sanphamquantam || '')}</div>
               <div><span class="font-bold">SP đã mua:</span> ${escapeHtml(rec.Sanphamdamua || '')}</div>
@@ -1099,11 +1157,17 @@
               <div><span class="font-bold">Hẹn chăm sóc lại:</span> <span class="font-semibold text-blue-800">${escapeHtml(formatDisplayDateOnly(rec.Ngayhenchamsoclai))}</span></div>
               <div><span class="font-bold">Ghi chú:</span> ${escapeHtml(rec.Ghichu || '')}</div>
               ${renderExtras(rec)}
+              <div class="pt-2 mt-1 border-t border-slate-200 space-y-1.5">
+                <div class="font-bold text-emerald-800">Check lại (${(rec._checks || []).length})</div>
+                ${renderChecks(rec)}
+              </div>
               ${driveThumb(rec.Anh) ? `<a href="${escapeAttr(rec.Anh)}" target="_blank"><img src="${escapeAttr(driveThumb(rec.Anh))}" alt="Ảnh" loading="lazy" onerror="this.style.display='none'" class="mt-2 w-full max-h-56 object-cover rounded-lg border border-slate-200" /></a>` : ''}
             </div>
             <div class="flex items-center gap-3 pt-3 border-t border-slate-100 text-base">
               <button type="button" onclick="openEditModalByIndex(${idx})"
                 class="px-4 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200">Sửa</button>
+              <button type="button" onclick="openCheckModalByIndex(${idx})"
+                class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold">Check lại</button>
               ${rec.Anh ? `<a href="${escapeAttr(rec.Anh)}" target="_blank" class="text-blue-600 underline font-semibold">Xem ảnh</a>` : ''}
               ${(/^https?:/i.test(rec.ToadoGPS || '')) ? `<a href="${escapeAttr(rec.ToadoGPS)}" target="_blank" class="text-blue-600 underline font-semibold">Xem GPS</a>` : ''}
             </div>
@@ -1126,7 +1190,7 @@
       const headers = [
         'TT', 'Ngày check-in', 'NV phụ trách', 'Tên khách hàng', 'Người liên hệ', 'SĐT', 'Zalo',
         'Loại cửa hàng', 'SP quan tâm', 'SP đã mua', 'SP đang dùng', 'Lý do chưa dùng',
-        'Ngày hẹn chăm sóc lại', 'Mức độ tiềm năng', 'Địa chỉ', 'Ghi chú', 'Link ảnh', 'Link GPS'
+        'Ngày hẹn chăm sóc lại', 'Mức độ tiềm năng', 'Địa chỉ', 'Ghi chú', 'Link ảnh', 'Link GPS', 'Xác nhận Zalo', 'Lịch sử check lại'
       ];
 
       const aoa = [headers].concat(rows.map(r => [
@@ -1147,7 +1211,9 @@
         r.Diachi || '',
         r.Ghichu || '',
         r.Anh || '',
-        (r.ToadoGPS && r.ToadoGPS !== 'N/A') ? r.ToadoGPS : ''
+        (r.ToadoGPS && r.ToadoGPS !== 'N/A') ? r.ToadoGPS : '',
+        latestZalo(r),
+        (r._checks || []).map(x => `[${x.date}] ${x.person}: ${x.note}${x.zalo && x.zalo !== 'Chưa kiểm tra' ? ' (' + x.zalo + ')' : ''}`).join('\n')
       ]));
 
       let label = 'TatCa';
@@ -1158,7 +1224,7 @@
 
       if (window.XLSX) {
         const ws = XLSX.utils.aoa_to_sheet(aoa);
-        ws['!cols'] = [6, 18, 18, 28, 18, 14, 14, 24, 24, 22, 22, 30, 16, 14, 40, 40, 30, 30].map(w => ({ wch: w }));
+        ws['!cols'] = [6, 18, 18, 28, 18, 14, 14, 24, 24, 22, 22, 30, 16, 14, 40, 40, 30, 30, 16, 60].map(w => ({ wch: w }));
         ws['!autofilter'] = { ref: ws['!ref'] };
         ws['!freeze'] = { xSplit: 0, ySplit: 1 };
         const wb = XLSX.utils.book_new();
@@ -1297,6 +1363,12 @@
         finalLyDo = v;
       }
 
+      if (zaloInfo(document.getElementById('editZalo').value).type === 'bad') {
+        editErrorMsg.textContent = 'Số Zalo chưa đúng định dạng (10 số, bắt đầu bằng 0).';
+        editErrorMsg.classList.remove('hidden');
+        return;
+      }
+
       const saveBtn = document.getElementById('saveEditBtn');
       const stopCounter = startSecondsCounter(saveBtn, 'Đang lưu');
 
@@ -1340,6 +1412,144 @@
       } finally {
         stopCounter();
         saveBtn.textContent = 'Lưu thay đổi';
+      }
+    });
+
+    // ==================== ZALO ====================
+    // Trình duyệt không thể tự xác minh một số có đăng ký Zalo hay không (Zalo không cho tra cứu công khai).
+    // Ở đây: kiểm tra định dạng + tạo link zalo.me để người dùng bấm mở và tự xác nhận.
+    function zaloInfo(v) {
+      const raw = String(v || '').replace(/^'/, '').trim();
+      const digits = raw.replace(/[\s.\-()]/g, '');
+      if (!/^\+?\d+$/.test(digits)) return { type: 'text' };
+      const n = digits.replace(/^\+?84/, '0');
+      return /^0\d{9}$/.test(n) ? { type: 'ok', number: n } : { type: 'bad' };
+    }
+
+    function zaloLink(v) {
+      const txt = cleanPhone(v);
+      const info = zaloInfo(txt);
+      if (info.type === 'ok') {
+        return `<a href="https://zalo.me/${info.number}" target="_blank" rel="noopener" class="text-blue-600 underline font-semibold">${escapeHtml(txt)}</a>`;
+      }
+      return escapeHtml(txt);
+    }
+
+    function latestZalo(rec) {
+      const c = rec._checks || [];
+      for (let i = c.length - 1; i >= 0; i--) {
+        if (c[i].zalo && c[i].zalo !== 'Chưa kiểm tra') return c[i].zalo;
+      }
+      return '';
+    }
+
+    function zaloBadgeHtml(status) {
+      if (status === 'Đúng số Zalo') return '<span class="badge bg-emerald-100 text-emerald-800">✔ Đúng số Zalo</span>';
+      if (status === 'Sai số Zalo') return '<span class="badge bg-red-100 text-red-800">✘ Sai số Zalo</span>';
+      return '';
+    }
+
+    function zaloStatusBadge(rec) {
+      const b = zaloBadgeHtml(latestZalo(rec));
+      return b ? ' ' + b : '';
+    }
+
+    function updateZaloHint() {
+      const hint = document.getElementById('zaloHint');
+      const v = zaloEl.value.trim();
+      if (!v) { hint.innerHTML = ''; return; }
+      const info = zaloInfo(v);
+      if (info.type === 'ok') {
+        hint.innerHTML = `<span class="text-emerald-700 font-semibold">✔ Định dạng hợp lệ.</span> <a href="https://zalo.me/${info.number}" target="_blank" rel="noopener" class="text-blue-600 underline font-semibold">Mở Zalo để kiểm tra</a>`;
+      } else if (info.type === 'bad') {
+        hint.innerHTML = '<span class="text-red-700 font-semibold">Số chưa đúng định dạng (10 số, bắt đầu bằng 0).</span>';
+      } else {
+        hint.innerHTML = '<span class="text-slate-500">Đang nhập tên Zalo (không kiểm tra được định dạng).</span>';
+      }
+    }
+    zaloEl.addEventListener('input', updateZaloHint);
+
+    // ==================== CHECK LẠI ====================
+    function renderChecks(rec) {
+      const list = (rec._checks || []).slice().reverse();
+      if (!list.length) return '<div class="text-sm text-slate-500 italic">Chưa check lại</div>';
+      return list.map(x => `
+        <div class="border-l-4 border-emerald-400 bg-emerald-50 rounded-r-lg px-2.5 py-1.5 text-[0.92em] break-words">
+          <div class="font-bold text-emerald-900">${escapeHtml(x.date || '')} · ${escapeHtml(x.person || '')}</div>
+          ${zaloBadgeHtml(x.zalo) ? '<div>' + zaloBadgeHtml(x.zalo) + '</div>' : ''}
+          <div class="text-slate-800 whitespace-pre-line">${escapeHtml(x.note || '')}</div>
+        </div>`).join('');
+    }
+
+    const checkModal = document.getElementById('checkModal');
+    const checkErrorMsg = document.getElementById('checkErrorMsg');
+
+    window.openCheckModalByIndex = function(idx) {
+      const rec = (window.__currentFilteredRecords || [])[idx];
+      if (!rec) return;
+      checkErrorMsg.classList.add('hidden');
+      document.getElementById('checkRecordId').value = rec.ID || '';
+      document.getElementById('checkInfo').innerHTML = `
+        <div class="font-extrabold text-lg text-slate-900">${rec.TT ? '#' + escapeHtml(rec.TT) + ' · ' : ''}${escapeHtml(rec.Tenkhachhang || '')}</div>
+        <div>NV thu thập: <b>${escapeHtml(rec.Nhanvienphutrach || '')}</b> · ${escapeHtml(formatDisplayCheckin(rec.Ngaycheckin))}</div>
+        <div>Liên hệ: <b>${escapeHtml(rec.Nguoilienhe || '')}</b> · ĐT: ${escapeHtml(cleanPhone(rec.SDT))} · Zalo: ${zaloLink(rec.Zalo)}${zaloStatusBadge(rec)}</div>`;
+      document.getElementById('checkHistory').innerHTML = renderChecks(rec);
+      document.getElementById('checkNguoi').value = localStorage.getItem('ks_nguoiCheck') || '';
+      document.getElementById('checkZalo').value = 'Chưa kiểm tra';
+      document.getElementById('checkGhiChu').value = '';
+      checkModal.classList.remove('hidden');
+      checkModal.classList.add('flex');
+    };
+
+    function closeCheckModal() {
+      checkModal.classList.add('hidden');
+      checkModal.classList.remove('flex');
+    }
+    document.getElementById('closeCheckModal').addEventListener('click', closeCheckModal);
+    document.getElementById('cancelCheckBtn').addEventListener('click', closeCheckModal);
+
+    document.getElementById('checkForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      checkErrorMsg.classList.add('hidden');
+      const nguoi = document.getElementById('checkNguoi').value.trim();
+      const note = document.getElementById('checkGhiChu').value.trim();
+      if (!validateMeaningfulText(nguoi) || !validateMeaningfulText(note)) {
+        checkErrorMsg.textContent = 'Vui lòng nhập đầy đủ Người check lại và Ghi chú check lại.';
+        checkErrorMsg.classList.remove('hidden');
+        return;
+      }
+      const id = document.getElementById('checkRecordId').value;
+      if (!id) {
+        checkErrorMsg.textContent = 'Bản ghi này chưa có ID trong Sheet nên không thể gắn check lại.';
+        checkErrorMsg.classList.remove('hidden');
+        return;
+      }
+      localStorage.setItem('ks_nguoiCheck', nguoi);
+      const saveBtn = document.getElementById('saveCheckBtn');
+      const stop = startSecondsCounter(saveBtn, 'Đang lưu');
+      try {
+        const res = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'addCheck', id: id, nguoiCheck: nguoi,
+            zaloStatus: document.getElementById('checkZalo').value, ghiChu: note
+          })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          closeCheckModal();
+          await loadReportData();
+        } else {
+          checkErrorMsg.textContent = 'Lỗi: ' + (data.message || 'không rõ nguyên nhân');
+          checkErrorMsg.classList.remove('hidden');
+        }
+      } catch (err) {
+        checkErrorMsg.textContent = 'Không lưu được. Kiểm tra mạng hoặc Deploy lại Apps Script.';
+        checkErrorMsg.classList.remove('hidden');
+      } finally {
+        stop();
+        saveBtn.textContent = 'Lưu check lại';
       }
     });
 
