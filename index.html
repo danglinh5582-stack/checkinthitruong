@@ -187,37 +187,24 @@
       <!-- Thanh lọc (cố định dưới header trên màn hình lớn) -->
       <div id="reportToolbar" class="bg-slate-50 border-b border-slate-200 px-3 sm:px-5 py-3 md:sticky md:top-[var(--hh,0px)] md:z-30">
         <div class="flex flex-wrap items-end gap-x-4 gap-y-3">
-          <div class="flex flex-wrap items-center gap-2">
-            <button type="button" data-period="day" class="period-btn active">Theo ngày</button>
-            <button type="button" data-period="range" class="period-btn">Từ ngày – Đến ngày</button>
-            <button type="button" data-period="month" class="period-btn">Theo tháng</button>
-            <button type="button" data-period="year" class="period-btn">Theo năm</button>
-            <button type="button" data-period="all" class="period-btn">Tất cả</button>
-          </div>
-
-          <div id="pickerDayBox" class="w-full sm:w-auto">
-            <label class="block text-sm font-bold text-slate-600 mb-1">Chọn ngày</label>
-            <input type="date" id="filterDate" class="fld !py-2 !text-base" />
-          </div>
-          <div id="pickerRangeBox" class="hidden w-full sm:w-auto">
-            <div class="flex items-end gap-2">
-              <div class="flex-1 sm:flex-none">
-                <label class="block text-sm font-bold text-slate-600 mb-1">Từ ngày</label>
-                <input type="date" id="filterFrom" class="fld !py-2 !text-base" />
-              </div>
-              <div class="flex-1 sm:flex-none">
-                <label class="block text-sm font-bold text-slate-600 mb-1">Đến ngày</label>
-                <input type="date" id="filterTo" class="fld !py-2 !text-base" />
-              </div>
+          <div class="flex items-end gap-2 w-full sm:w-auto">
+            <button type="button" id="btnModeDay" data-period="day" class="period-btn active">Theo ngày</button>
+            <div id="pickerDayBox" class="flex-1 sm:flex-none">
+              <label class="block text-sm font-bold text-slate-600 mb-1">Chọn ngày</label>
+              <input type="date" id="filterDate" class="fld !py-2 !text-base" />
             </div>
           </div>
-          <div id="pickerMonthBox" class="hidden w-full sm:w-auto">
-            <label class="block text-sm font-bold text-slate-600 mb-1">Chọn tháng</label>
-            <input type="month" id="filterMonth" class="fld !py-2 !text-base" />
-          </div>
-          <div id="pickerYearBox" class="hidden w-full sm:w-auto">
-            <label class="block text-sm font-bold text-slate-600 mb-1">Chọn năm</label>
-            <input type="number" id="filterYear" min="2020" max="2100" class="fld !py-2 !text-base" />
+
+          <div id="pickerRangeBox" class="w-full sm:w-auto">
+            <label class="block text-sm font-bold text-slate-600 mb-1">Chọn khoảng thời gian</label>
+            <div id="rangePill" class="flex items-center gap-2 bg-white border border-slate-300 rounded-xl px-3 py-1.5 shadow-sm">
+              <input type="date" id="filterFrom" aria-label="Từ ngày" class="bg-transparent outline-none text-base min-w-0 flex-1 sm:flex-none sm:w-[9.5rem]" />
+              <span class="font-bold text-slate-900">đến</span>
+              <input type="date" id="filterTo" aria-label="Đến ngày" class="bg-transparent outline-none text-base min-w-0 flex-1 sm:flex-none sm:w-[9.5rem]" />
+              <button type="button" id="btnRangeCal" aria-label="Mở lịch" class="text-blue-700 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              </button>
+            </div>
           </div>
 
           <div class="w-full sm:w-auto">
@@ -263,7 +250,7 @@
           </div>
         </div>
         <div class="mt-3 space-y-2">
-        <div class="grid grid-cols-3 gap-2 sm:gap-4 text-center">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 text-center">
           <div class="bg-blue-50 border border-blue-100 rounded-xl p-2">
             <div class="text-sm sm:text-base text-blue-700 font-bold leading-tight">Tổng điểm khảo sát</div>
             <div id="statTotal" class="text-2xl sm:text-3xl font-extrabold text-blue-900">0</div>
@@ -273,8 +260,12 @@
             <div id="statHigh" class="text-2xl sm:text-3xl font-extrabold text-emerald-900">0</div>
           </div>
           <div class="bg-amber-50 border border-amber-100 rounded-xl p-2">
-            <div class="text-sm sm:text-base text-amber-700 font-bold leading-tight">Tiềm năng TB / Thấp</div>
-            <div id="statOther" class="text-2xl sm:text-3xl font-extrabold text-amber-900">0</div>
+            <div class="text-sm sm:text-base text-amber-700 font-bold leading-tight">Tiềm năng Trung bình</div>
+            <div id="statMid" class="text-2xl sm:text-3xl font-extrabold text-amber-900">0</div>
+          </div>
+          <div class="bg-slate-100 border border-slate-200 rounded-xl p-2">
+            <div class="text-sm sm:text-base text-slate-600 font-bold leading-tight">Tiềm năng Thấp</div>
+            <div id="statLow" class="text-2xl sm:text-3xl font-extrabold text-slate-800">0</div>
           </div>
         </div>
 
@@ -288,8 +279,8 @@
         <div class="hidden xl:block border border-slate-200 rounded-xl">
           <table id="reportTable" class="w-full table-fixed text-[20px] text-left border-collapse">
             <colgroup>
-              <col style="width:8%"><col style="width:13%"><col style="width:12%"><col style="width:8%">
-              <col style="width:15%"><col style="width:10%"><col style="width:6%"><col style="width:20%"><col style="width:8%">
+              <col style="width:8%"><col style="width:14%"><col style="width:12%"><col style="width:8%">
+              <col style="width:16%"><col style="width:10%"><col style="width:6%"><col style="width:18%"><col style="width:8%">
             </colgroup>
             <thead class="bg-slate-800 text-white">
               <tr>
@@ -396,6 +387,15 @@
 
         <div><label class="lbl">Ghi chú *</label><textarea id="editGhiChu" rows="3" required class="fld"></textarea></div>
 
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-4">
+          <div><label class="lbl">Người sửa *</label><input type="text" id="editNguoiSua" required placeholder="Họ tên người sửa..." class="fld" /></div>
+          <div>
+            <label class="lbl">Ngày giờ sửa</label>
+            <div id="editNowDisplay" class="fld !bg-slate-100 font-semibold"></div>
+          </div>
+        </div>
+        <div id="editLastInfo" class="text-base text-amber-800"></div>
+
         <div id="editErrorMsg" class="hidden text-base text-red-700 bg-red-50 border border-red-200 rounded-lg p-3"></div>
 
         <div class="flex justify-end gap-3 pt-2">
@@ -443,7 +443,7 @@
   </div>
 
   <script>
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxhFaMLyWH6anW05tIv6Nc4HnXwcK5AiedcqHorNqvE87-Xw-_9vTb_9qU7jFR7nSGLWw/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzz8cVlf6J09ecaSF9TWo0-1z_cC2xEtQaH6UFNbh2-iifP0JtO4f8uEJGVCGZXXHts/exec';
 
     const PRESET_TYPES = [
       'Gara sửa chữa ô tô',
@@ -504,8 +504,6 @@
     const resultMsgEl = document.getElementById('resultMsg');
 
     const filterDateEl = document.getElementById('filterDate');
-    const filterMonthEl = document.getElementById('filterMonth');
-    const filterYearEl = document.getElementById('filterYear');
     const filterPotentialEl = document.getElementById('filterPotential');
     const filterKeywordEl = document.getElementById('filterKeyword');
     const filterStaffEl = document.getElementById('filterStaff');
@@ -537,10 +535,6 @@
 
     const vnToday = getVNDateParts();
     filterDateEl.value = `${vnToday.yyyy}-${vnToday.mm}-${vnToday.dd}`;
-    filterMonthEl.value = `${vnToday.yyyy}-${vnToday.mm}`;
-    filterYearEl.value = vnToday.yyyy;
-    filterFromEl.value = `${vnToday.yyyy}-${vnToday.mm}-01`;
-    filterToEl.value = `${vnToday.yyyy}-${vnToday.mm}-${vnToday.dd}`;
 
     const savedNV = localStorage.getItem('ks_nhanVien');
     if (savedNV) nhanVienEl.value = savedNV;
@@ -885,22 +879,26 @@
     }
 
     // ==================== BÁO CÁO & SỬA ====================
-    document.querySelectorAll('.period-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        currentPeriod = btn.dataset.period;
-        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        document.getElementById('pickerDayBox').classList.toggle('hidden', currentPeriod !== 'day');
-        document.getElementById('pickerRangeBox').classList.toggle('hidden', currentPeriod !== 'range');
-        document.getElementById('pickerMonthBox').classList.toggle('hidden', currentPeriod !== 'month');
-        document.getElementById('pickerYearBox').classList.toggle('hidden', currentPeriod !== 'year');
-        renderFilteredReport();
-        updateStickyOffsets();
-      });
+    // Hai chế độ lọc thời gian: "Theo ngày" (1 ngày) hoặc khoảng Từ ngày – Đến ngày (để trống = tất cả)
+    const btnModeDay = document.getElementById('btnModeDay');
+    const rangePill = document.getElementById('rangePill');
+    function setPeriod(mode) {
+      currentPeriod = mode;
+      btnModeDay.classList.toggle('active', mode === 'day');
+      rangePill.classList.toggle('ring-2', mode === 'range');
+      rangePill.classList.toggle('ring-blue-600', mode === 'range');
+      rangePill.classList.toggle('border-blue-600', mode === 'range');
+      renderFilteredReport();
+      updateStickyOffsets();
+    }
+    btnModeDay.addEventListener('click', () => setPeriod('day'));
+    filterDateEl.addEventListener('change', () => setPeriod('day'));
+    [filterFromEl, filterToEl].forEach(el => el.addEventListener('change', () => setPeriod('range')));
+    document.getElementById('btnRangeCal').addEventListener('click', () => {
+      try { filterFromEl.showPicker(); } catch (e) { filterFromEl.focus(); }
     });
 
-    [filterDateEl, filterFromEl, filterToEl, filterMonthEl, filterYearEl, filterPotentialEl, filterStaffEl, filterCheckEl, filterKeywordEl].forEach(el => {
+    [filterDateEl, filterFromEl, filterToEl, filterPotentialEl, filterStaffEl, filterCheckEl, filterKeywordEl].forEach(el => {
       el.addEventListener('input', renderFilteredReport);
       el.addEventListener('change', renderFilteredReport);
     });
@@ -918,7 +916,7 @@
       sdt: 'SDT', diachi: 'Diachi', toadogps: 'ToadoGPS', loaicuahang: 'Loaicuahang',
       sanphamquantam: 'Sanphamquantam', sanphamdamua: 'Sanphamdamua', sanphamdangdung: 'Sanphamdangdung',
       lydochuadung: 'LyDoChuaDung', lydochuadungsanphamcongty: 'LyDoChuaDung',
-      ngayhenchamsoclai: 'Ngayhenchamsoclai', mucdotiemnang: 'Mucdotiemnang', anh: 'Anh', zalo: 'Zalo',
+      ngayhenchamsoclai: 'Ngayhenchamsoclai', ngaygiosua: 'NgayGioSua', nguoisua: 'NguoiSua', mucdotiemnang: 'Mucdotiemnang', anh: 'Anh', zalo: 'Zalo',
       nhanvienphutrach: 'Nhanvienphutrach', ghichu: 'Ghichu', id: 'ID', ngayiso: 'NgayISO'
     };
 
@@ -1036,6 +1034,10 @@
       return str;
     }
 
+    function editedInfo(rec) {
+      if (!rec.NgayGioSua && !rec.NguoiSua) return '';
+      return `<div class="text-sm text-amber-700 mt-1">✎ Sửa: ${escapeHtml(rec.NgayGioSua || '')}${rec.NguoiSua ? ' · ' + escapeHtml(rec.NguoiSua) : ''}</div>`;
+    }
     function renderExtras(rec) {
       const ex = rec._extra || [];
       if (!ex.length) return '';
@@ -1060,8 +1062,6 @@
       const staff = filterStaffEl.value;
       const chk = filterCheckEl.value;
       const selDate = filterDateEl.value;
-      const selMonth = filterMonthEl.value;
-      const selYear = filterYearEl.value.trim();
       let from = filterFromEl.value, to = filterToEl.value;
       if (from && to && from > to) { const t = from; from = to; to = t; }
 
@@ -1073,8 +1073,6 @@
           if (from && iso < from) return false;
           if (to && iso > to) return false;
         }
-        if (currentPeriod === 'month' && selMonth && !iso.startsWith(selMonth)) return false;
-        if (currentPeriod === 'year' && selYear && !iso.startsWith(selYear)) return false;
         if (pot && String(rec.Mucdotiemnang || '') !== pot) return false;
         if (staff && String(rec.Nhanvienphutrach || '').trim() !== staff) return false;
         if (chk === 'none' && (rec._checks || []).length) return false;
@@ -1096,7 +1094,8 @@
       const highCount = filtered.filter(r => r.Mucdotiemnang === 'Cao').length;
       document.getElementById('statTotal').textContent = total;
       document.getElementById('statHigh').textContent = highCount;
-      document.getElementById('statOther').textContent = total - highCount;
+      document.getElementById('statMid').textContent = filtered.filter(r => r.Mucdotiemnang === 'Trung bình').length;
+      document.getElementById('statLow').textContent = filtered.filter(r => r.Mucdotiemnang === 'Thấp').length;
 
       reportStatusEl.textContent = `Hiển thị ${total} bản ghi (tổng trên Sheet: ${allRecords.length})`;
       window.__currentFilteredRecords = filtered;
@@ -1119,6 +1118,7 @@
               <div class="text-slate-500 text-sm">#${escapeHtml(rec.TT || '')}</div>
               <div class="font-semibold">${escapeHtml(formatDisplayCheckin(rec.Ngaycheckin))}</div>
               <div class="text-slate-600 mt-1">NV: <span class="font-semibold text-slate-800">${escapeHtml(rec.Nhanvienphutrach || '')}</span></div>
+              ${editedInfo(rec)}
             </td>
             <td class="px-3 py-3">
               <div class="font-bold text-slate-900 text-base">${escapeHtml(rec.Tenkhachhang || '')}</div>
@@ -1168,6 +1168,7 @@
                 <div class="font-extrabold text-lg text-slate-900 leading-snug">${rec.TT ? '#' + escapeHtml(rec.TT) + ' · ' : ''}${escapeHtml(rec.Tenkhachhang || '')}</div>
                 <div class="text-base text-slate-600">${escapeHtml(formatDisplayCheckin(rec.Ngaycheckin))}</div>
                 <div class="text-base text-slate-600">NV: <span class="font-semibold text-slate-800">${escapeHtml(rec.Nhanvienphutrach || '')}</span></div>
+                ${editedInfo(rec)}
               </div>
               <span class="badge shrink-0 ${badgeClass(rec.Mucdotiemnang)}">${escapeHtml(rec.Mucdotiemnang || '')}</span>
             </div>
@@ -1216,7 +1217,7 @@
       const headers = [
         'TT', 'Ngày check-in', 'NV phụ trách', 'Tên khách hàng', 'Người liên hệ', 'SĐT', 'Zalo',
         'Loại cửa hàng', 'SP quan tâm', 'SP đã mua', 'SP đang dùng', 'Lý do chưa dùng',
-        'Ngày hẹn chăm sóc lại', 'Mức độ tiềm năng', 'Địa chỉ', 'Ghi chú', 'Link ảnh', 'Link GPS', 'Xác nhận Zalo', 'Lịch sử check lại'
+        'Ngày hẹn chăm sóc lại', 'Mức độ tiềm năng', 'Địa chỉ', 'Ghi chú', 'Link ảnh', 'Link GPS', 'Xác nhận Zalo', 'Lịch sử check lại', 'Sửa lần cuối'
       ];
 
       const aoa = [headers].concat(rows.map(r => [
@@ -1239,19 +1240,18 @@
         r.Anh || '',
         (r.ToadoGPS && r.ToadoGPS !== 'N/A') ? r.ToadoGPS : '',
         latestZalo(r),
-        (r._checks || []).map(x => `[${x.date}] ${x.person}: ${x.note}${x.zalo && x.zalo !== 'Chưa kiểm tra' ? ' (' + x.zalo + ')' : ''}`).join('\n')
+        (r._checks || []).map(x => `[${x.date}] ${x.person}: ${x.note}${x.zalo && x.zalo !== 'Chưa kiểm tra' ? ' (' + x.zalo + ')' : ''}`).join('\n'),
+        (r.NgayGioSua || r.NguoiSua) ? `${r.NgayGioSua || ''} · ${r.NguoiSua || ''}` : ''
       ]));
 
       let label = 'TatCa';
       if (currentPeriod === 'day') label = filterDateEl.value || 'Ngay';
-      else if (currentPeriod === 'range') label = (filterFromEl.value || '') + '_den_' + (filterToEl.value || '');
-      else if (currentPeriod === 'month') label = filterMonthEl.value || 'Thang';
-      else if (currentPeriod === 'year') label = 'Nam_' + (filterYearEl.value || '');
+      else if (currentPeriod === 'range') label = (filterFromEl.value || filterToEl.value) ? ((filterFromEl.value || '') + '_den_' + (filterToEl.value || '')) : 'TatCa';
       const fileName = `KhaoSat_${label}`;
 
       if (window.XLSX) {
         const ws = XLSX.utils.aoa_to_sheet(aoa);
-        ws['!cols'] = [6, 18, 18, 28, 18, 14, 14, 24, 24, 22, 22, 30, 16, 14, 40, 40, 30, 30, 16, 60].map(w => ({ wch: w }));
+        ws['!cols'] = [6, 18, 18, 28, 18, 14, 14, 24, 24, 22, 22, 30, 16, 14, 40, 40, 30, 30, 16, 60, 28].map(w => ({ wch: w }));
         ws['!autofilter'] = { ref: ws['!ref'] };
         ws['!freeze'] = { xSplit: 0, ySplit: 1 };
         const wb = XLSX.utils.book_new();
@@ -1351,12 +1351,20 @@
       document.getElementById('editNgayHen').value = getRecordDateISO({ NgayISO: rec.Ngayhenchamsoclai });
       document.getElementById('editMucDo').value = rec.Mucdotiemnang || 'Cao';
       document.getElementById('editGhiChu').value = rec.Ghichu || '';
+      document.getElementById('editNguoiSua').value = localStorage.getItem('ks_nguoiSua') || '';
+      document.getElementById('editLastInfo').textContent = rec.NgayGioSua
+        ? 'Sửa lần cuối: ' + rec.NgayGioSua + (rec.NguoiSua ? ' · ' + rec.NguoiSua : '') : '';
+      const tickEditClock = () => { document.getElementById('editNowDisplay').textContent = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }); };
+      tickEditClock();
+      clearInterval(window.__editClock);
+      window.__editClock = setInterval(tickEditClock, 1000);
 
       editModal.classList.remove('hidden');
       editModal.classList.add('flex');
     };
 
     function closeEditModal() {
+      clearInterval(window.__editClock);
       editModal.classList.add('hidden');
       editModal.classList.remove('flex');
     }
@@ -1396,6 +1404,14 @@
         return;
       }
 
+      const nguoiSua = document.getElementById('editNguoiSua').value.trim();
+      if (!validateMeaningfulText(nguoiSua)) {
+        editErrorMsg.textContent = 'Vui lòng nhập tên Người sửa.';
+        editErrorMsg.classList.remove('hidden');
+        return;
+      }
+      localStorage.setItem('ks_nguoiSua', nguoiSua);
+
       const saveBtn = document.getElementById('saveEditBtn');
       const stopCounter = startSecondsCounter(saveBtn, 'Đang lưu');
 
@@ -1416,7 +1432,8 @@
         lyDoChuaDung: finalLyDo,
         ngayHenChamSocLai: document.getElementById('editNgayHen').value,
         mucDoTiemNang: document.getElementById('editMucDo').value,
-        ghiChu: document.getElementById('editGhiChu').value.trim()
+        ghiChu: document.getElementById('editGhiChu').value.trim(),
+        nguoiSua: nguoiSua
       };
 
       try {
