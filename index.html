@@ -18,8 +18,8 @@
       .tab-btn.active { @apply bg-blue-600 text-white; }
       .badge { @apply inline-block px-2.5 py-1 rounded-full text-sm font-bold; }
     }
-    html { -webkit-text-size-adjust: 100%; }
-    body { font-size: 17px; }
+    html { -webkit-text-size-adjust: 100%; font-size: 21px; }
+    body { font-size: 22px; }
     #reportTable th { position: sticky; top: var(--th, 0px); z-index: 10; }
     #reportTable td { word-break: break-word; overflow-wrap: anywhere; }
   </style>
@@ -183,7 +183,7 @@
     <div id="reportView" class="hidden">
 
       <!-- Thanh lọc (cố định dưới header trên màn hình lớn) -->
-      <div id="reportToolbar" class="bg-slate-50 border-b border-slate-200 px-3 sm:px-5 py-3 xl:sticky xl:top-[var(--hh,0px)] xl:z-30">
+      <div id="reportToolbar" class="bg-slate-50 border-b border-slate-200 px-3 sm:px-5 py-3 md:sticky md:top-[var(--hh,0px)] md:z-30">
         <div class="flex flex-wrap items-end gap-x-4 gap-y-3">
           <div class="flex flex-wrap items-center gap-2">
             <button type="button" data-period="day" class="period-btn active">Theo ngày</button>
@@ -215,6 +215,13 @@
             </select>
           </div>
 
+          <div class="w-full sm:w-auto">
+            <label class="block text-sm font-bold text-slate-600 mb-1">Nhân viên kinh doanh</label>
+            <select id="filterStaff" class="fld !py-2 !text-base">
+              <option value="">Tất cả nhân viên</option>
+            </select>
+          </div>
+
           <div class="w-full sm:flex-1 sm:min-w-[220px]">
             <label class="block text-sm font-bold text-slate-600 mb-1">Tìm tên KH / NV / sản phẩm</label>
             <input type="text" id="filterKeyword" placeholder="Gõ từ khóa để lọc nhanh..." class="fld !py-2 !text-base" />
@@ -231,29 +238,31 @@
             </button>
           </div>
         </div>
-      </div>
-
-      <div class="p-3 sm:p-5 space-y-4">
+        <div class="mt-3 space-y-2">
         <div class="grid grid-cols-3 gap-2 sm:gap-4 text-center">
-          <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
+          <div class="bg-blue-50 border border-blue-100 rounded-xl p-2">
             <div class="text-sm sm:text-base text-blue-700 font-bold leading-tight">Tổng điểm khảo sát</div>
             <div id="statTotal" class="text-2xl sm:text-3xl font-extrabold text-blue-900">0</div>
           </div>
-          <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+          <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-2">
             <div class="text-sm sm:text-base text-emerald-700 font-bold leading-tight">Tiềm năng Cao</div>
             <div id="statHigh" class="text-2xl sm:text-3xl font-extrabold text-emerald-900">0</div>
           </div>
-          <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
+          <div class="bg-amber-50 border border-amber-100 rounded-xl p-2">
             <div class="text-sm sm:text-base text-amber-700 font-bold leading-tight">Tiềm năng TB / Thấp</div>
             <div id="statOther" class="text-2xl sm:text-3xl font-extrabold text-amber-900">0</div>
           </div>
         </div>
 
         <div id="reportStatus" class="text-base text-slate-700">Đang tải dữ liệu báo cáo...</div>
+        </div>
+      </div>
+
+      <div class="p-3 sm:p-5 space-y-4">
 
         <!-- Bảng (màn hình rộng): vừa chiều ngang, không cuộn ngang -->
         <div class="hidden xl:block border border-slate-200 rounded-xl">
-          <table id="reportTable" class="w-full table-fixed text-[15px] text-left border-collapse">
+          <table id="reportTable" class="w-full table-fixed text-[20px] text-left border-collapse">
             <colgroup>
               <col style="width:9%"><col style="width:17%"><col style="width:12%"><col style="width:9%">
               <col style="width:17%"><col style="width:11%"><col style="width:7%"><col style="width:11%"><col style="width:7%">
@@ -374,7 +383,7 @@
   </div>
 
   <script>
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxhFaMLyWH6anW05tIv6Nc4HnXwcK5AiedcqHorNqvE87-Xw-_9vTb_9qU7jFR7nSGLWw/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwMfKE9E7wYr3Mi4QBnqtJnDM1xJ1kjFtSNS8nEjmT_DbefyTQqbbGB0J-04WFqpB4bJw/exec';
 
     const PRESET_TYPES = [
       'Gara sửa chữa ô tô',
@@ -439,6 +448,7 @@
     const filterYearEl = document.getElementById('filterYear');
     const filterPotentialEl = document.getElementById('filterPotential');
     const filterKeywordEl = document.getElementById('filterKeyword');
+    const filterStaffEl = document.getElementById('filterStaff');
     const reportStatusEl = document.getElementById('reportStatus');
     const reportTableBodyEl = document.getElementById('reportTableBody');
     const reportCardListEl = document.getElementById('reportCardList');
@@ -474,7 +484,8 @@
     function updateStickyOffsets() {
       const hh = appHeader.offsetHeight;
       const isXL = window.matchMedia('(min-width: 1280px)').matches;
-      const tb = (isXL && !reportView.classList.contains('hidden')) ? reportToolbar.offsetHeight : 0;
+      const isMD = window.matchMedia('(min-width: 768px)').matches;
+      const tb = (isMD && !reportView.classList.contains('hidden')) ? reportToolbar.offsetHeight : 0;
       document.documentElement.style.setProperty('--hh', hh + 'px');
       document.documentElement.style.setProperty('--th', (hh + tb) + 'px');
     }
@@ -821,7 +832,7 @@
       });
     });
 
-    [filterDateEl, filterMonthEl, filterYearEl, filterPotentialEl, filterKeywordEl].forEach(el => {
+    [filterDateEl, filterMonthEl, filterYearEl, filterPotentialEl, filterStaffEl, filterKeywordEl].forEach(el => {
       el.addEventListener('input', renderFilteredReport);
       el.addEventListener('change', renderFilteredReport);
     });
@@ -856,6 +867,15 @@
       return rec;
     }
 
+    function populateStaffOptions() {
+      const cur = filterStaffEl.value;
+      const names = [...new Set(allRecords.map(r => String(r.Nhanvienphutrach || '').trim()).filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b, 'vi'));
+      filterStaffEl.innerHTML = '<option value="">Tất cả nhân viên</option>' +
+        names.map(n => `<option value="${escapeAttr(n)}">${escapeHtml(n)}</option>`).join('');
+      filterStaffEl.value = names.includes(cur) ? cur : '';
+    }
+
     async function loadReportData() {
       reportStatusEl.textContent = 'Đang tải dữ liệu báo cáo...';
       let text = '';
@@ -873,6 +893,7 @@
           allRecords = list.map(normalizeRecord);
           // Mới nhất lên đầu
           allRecords.sort((a, b) => (b._rowIndex || 0) - (a._rowIndex || 0));
+          populateStaffOptions();
           renderFilteredReport();
         } else {
           reportStatusEl.textContent = 'Lỗi tải dữ liệu: ' + (json.message || '');
@@ -968,6 +989,7 @@
     function renderFilteredReport() {
       const kw = filterKeywordEl.value.trim().toLowerCase();
       const pot = filterPotentialEl.value;
+      const staff = filterStaffEl.value;
       const selDate = filterDateEl.value;
       const selMonth = filterMonthEl.value;
       const selYear = filterYearEl.value.trim();
@@ -978,6 +1000,7 @@
         if (currentPeriod === 'month' && selMonth && !iso.startsWith(selMonth)) return false;
         if (currentPeriod === 'year' && selYear && !iso.startsWith(selYear)) return false;
         if (pot && String(rec.Mucdotiemnang || '') !== pot) return false;
+        if (staff && String(rec.Nhanvienphutrach || '').trim() !== staff) return false;
 
         if (kw) {
           const hay = [
