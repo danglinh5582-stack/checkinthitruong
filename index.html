@@ -6,6 +6,7 @@
   <title>Khảo Sát & Báo Cáo Thị Trường</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js"></script>
   <style type="text/tailwindcss">
     @layer components {
       .fld { @apply w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base sm:text-lg focus:outline-none focus:ring-2 focus:ring-blue-600; }
@@ -470,7 +471,7 @@
   </div>
 
   <script>
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzDr5ZCu9KHMSe27wnvf16gOletElAwJM9jgazZjtr0UGigeFeVh4p_05T6BKOt8mc3Ew/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbww5XF9Bl1u7W8o7SMYkQVFTRX7QifOsf7ZKCuScfuAPY6qF5VaNTf4cO6mi4mHVT5Hxw/exec';
 
     const PRESET_TYPES = [
       'Gara sửa chữa ô tô',
@@ -541,6 +542,9 @@
     const reportTableBodyEl = document.getElementById('reportTableBody');
     const reportCardListEl = document.getElementById('reportCardList');
 
+    let photoMeta = null;   // kết quả xác thực vị trí của ảnh hiện tại
+    const PHOTO_MAX_AGE_MIN = 10;      // ảnh phải được chụp trong vòng 10 phút
+    const EXIF_MAX_DIFF_M = 300;       // lệch tối đa giữa GPS trong ảnh (EXIF) và GPS thiết bị
     let stampedDataUrl = '';
     let rawImageDataUrl = '';
     let allRecords = [];
@@ -680,6 +684,10 @@
     });
 
     async function fetchLocation() {
+      if (photoMeta) {
+        gpsStatusEl.textContent = 'Vị trí đã khóa theo ảnh vừa chụp. Muốn đổi vị trí, hãy chụp lại ảnh.';
+        return;
+      }
       gpsStatusEl.textContent = 'Đang lấy tọa độ GPS...';
       if (!navigator.geolocation) {
         gpsStatusEl.textContent = 'Trình duyệt không hỗ trợ GPS. Vui lòng nhập địa chỉ đầy đủ.';
@@ -698,6 +706,7 @@
           const json = await res.json();
           if (json && json.display_name && !diaChiEl.value.trim()) {
             diaChiEl.value = json.display_name;
+            diaChiEl.dataset.auto = '1';
           }
         } catch (e) {}
 
@@ -730,7 +739,7 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
 
-          const now = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+          const now = (photoMeta && photoMeta.time ? new Date(photoMeta.time) : new Date()).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
           const nv = nhanVienEl.value.trim() || 'NV';
           const kh = tenKHEl.value.trim() || 'Khách hàng';
           const gpsText = (latEl.value && lngEl.value) ? `GPS: ${latEl.value}, ${lngEl.value}` : 'GPS: N/A';
@@ -772,13 +781,117 @@
       });
     }
 
-    cameraInputEl.addEventListener('change', (e) => {
+    // ---- Xác thực vị trí theo ảnh (chống gian lận) ----
+    diaChiEl.addEventListener('input', () => { diaChiEl.dataset.auto = '0'; });
+
+    function distM(lat1, lng1, lat2, lng2) {
+      const R = 6371000, rad = x => x * Math.PI / 180;
+      const dLat = rad(lat2 - lat1), dLng = rad(lng2 - lng1);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLng / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    }
+
+    function getFreshPosition() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) return reject(new Error('Trình duyệt không hỗ trợ GPS.'));
+        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+      });
+    }
+
+    async function autoFillAddress(lat, lng) {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=vi`);
+        const json = await res.json();
+        if (json && json.display_name && (!diaChiEl.value.trim() || diaChiEl.dataset.auto === '1')) {
+          diaChiEl.value = json.display_name;
+          diaChiEl.dataset.auto = '1';
+        }
+      } catch (e) {}
+    }
+
+    // Trả về { ok, error?, lat, lng, accuracy, source, verdict, time }
+    async function verifyPhoto(file) {
+      // 1) GPS thiết bị NGAY LÚC CHỤP (không dùng vị trí cũ)
+      let pos;
+      try {
+        pos = await getFreshPosition();
+      } catch (e) {
+        return { ok: false, error: 'Không lấy được GPS lúc chụp. Hãy bật Vị trí (GPS) và cấp quyền cho trình duyệt rồi chụp lại.' };
+      }
+      const devLat = pos.coords.latitude, devLng = pos.coords.longitude, acc = Math.round(pos.coords.accuracy);
+
+      // 2) Đọc EXIF từ file gốc (trước khi nén) : tọa độ + giờ chụp
+      let exifGps = null, exifDate = null;
+      if (window.exifr) {
+        try { exifGps = await exifr.gps(file); } catch (e) {}
+        try {
+          const m = await exifr.parse(file, ['DateTimeOriginal', 'CreateDate']);
+          exifDate = m && (m.DateTimeOriginal || m.CreateDate) || null;
+        } catch (e) {}
+      }
+
+      // 3) Ảnh phải là ảnh vừa chụp, không phải ảnh cũ chọn từ thư viện
+      const times = [file.lastModified, exifDate instanceof Date ? exifDate.getTime() : 0].filter(t => t > 0);
+      if (times.length) {
+        const ageMin = (Date.now() - Math.min(...times)) / 60000;
+        if (ageMin > PHOTO_MAX_AGE_MIN) {
+          return { ok: false, error: `Ảnh này được chụp cách đây khoảng ${Math.round(ageMin)} phút. Vui lòng chụp ảnh MỚI tại cửa hàng (không chọn ảnh từ thư viện).` };
+        }
+      }
+
+      // 4) Đối chiếu EXIF với GPS thiết bị
+      const notes = [];
+      let lat = devLat, lng = devLng, source = 'GPS thiết bị lúc chụp';
+      if (exifGps && isFinite(exifGps.latitude) && isFinite(exifGps.longitude)) {
+        const d = Math.round(distM(devLat, devLng, exifGps.latitude, exifGps.longitude));
+        if (d > EXIF_MAX_DIFF_M) {
+          return { ok: false, error: `Vị trí ghi trong ảnh lệch ${d} m so với vị trí hiện tại của máy. Vui lòng chụp lại ảnh tại cửa hàng.` };
+        }
+        lat = exifGps.latitude; lng = exifGps.longitude;
+        source = 'EXIF của ảnh';
+        notes.push(`EXIF khớp GPS thiết bị (lệch ${d} m)`);
+      } else {
+        notes.push('Ảnh không có EXIF GPS, dùng GPS thiết bị lúc chụp');
+      }
+      let warn = false;
+      if (acc > 100) { warn = true; notes.push(`GPS kém (±${acc} m)`); }
+
+      return {
+        ok: true, lat: lat.toFixed(6), lng: lng.toFixed(6), accuracy: acc, source: source,
+        verdict: (warn ? 'Cảnh báo: ' : 'Hợp lệ: ') + notes.join('; '),
+        time: Date.now()
+      };
+    }
+
+    cameraInputEl.addEventListener('change', async (e) => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
+
+      photoMeta = null;
+      stampedDataUrl = '';
+      rawImageDataUrl = '';
+      previewBoxEl.classList.add('hidden');
+      resultMsgEl.classList.add('hidden');
+      gpsStatusEl.textContent = 'Đang xác thực vị trí theo ảnh...';
+
+      const result = await verifyPhoto(file);
+      if (!result.ok) {
+        cameraInputEl.value = '';
+        gpsStatusEl.textContent = 'Chưa xác thực được vị trí ảnh.';
+        showMessage(result.error, false);
+        return;
+      }
+      photoMeta = result;
+      latEl.value = result.lat;
+      lngEl.value = result.lng;
+      gpsStatusEl.textContent = `📍 Vị trí theo ảnh: ${result.lat}, ${result.lng} (±${result.accuracy}m) · Nguồn: ${result.source}`;
+      autoFillAddress(result.lat, result.lng);
+
       const reader = new FileReader();
       reader.onload = async (ev) => {
         rawImageDataUrl = ev.target.result;
         await renderStampedImage(rawImageDataUrl);
+        imgInfoEl.textContent += ' · ' + result.verdict;
       };
       reader.readAsDataURL(file);
     });
@@ -795,6 +908,7 @@
         [validateMeaningfulText(tenKHEl.value), 'Vui lòng nhập đầy đủ Tên khách hàng.'],
         [validateMeaningfulText(diaChiEl.value), 'Vui lòng nhập đầy đủ Địa chỉ.'],
         [Boolean(stampedDataUrl), 'Vui lòng chụp ảnh thực tế.'],
+        [Boolean(photoMeta && photoMeta.ok && latEl.value && lngEl.value), 'Chưa xác thực được vị trí theo ảnh. Vui lòng bật GPS và chụp lại ảnh.'],
         [validateMeaningfulText(nguoiLienHeEl.value), 'Vui lòng nhập đầy đủ Người liên hệ.'],
         [validateMeaningfulText(sdtEl.value), 'Vui lòng nhập đầy đủ SĐT.'],
         [validateMeaningfulText(zaloEl.value), 'Vui lòng nhập đầy đủ Zalo.'],
@@ -846,7 +960,10 @@
         mucDoTiemNang: mucDoEl.value,
         ghiChu: ghiChuEl.value.trim(),
         imageBase64: stampedDataUrl,
-        imageMime: 'image/jpeg'
+        imageMime: 'image/jpeg',
+        gpsNguon: photoMeta ? photoMeta.source : '',
+        gpsDoChinhXac: photoMeta ? '±' + photoMeta.accuracy + ' m' : '',
+        kiemTraAnh: photoMeta ? photoMeta.verdict : ''
       };
 
       try {
@@ -883,6 +1000,7 @@
           cameraInputEl.value = '';
           rawImageDataUrl = '';
           stampedDataUrl = '';
+          photoMeta = null;
           previewBoxEl.classList.add('hidden');
           fetchLocation();
         } else {
@@ -945,7 +1063,7 @@
       sdt: 'SDT', diachi: 'Diachi', toadogps: 'ToadoGPS', loaicuahang: 'Loaicuahang',
       sanphamquantam: 'Sanphamquantam', sanphamdamua: 'Sanphamdamua', sanphamdangdung: 'Sanphamdangdung',
       lydochuadung: 'LyDoChuaDung', lydochuadungsanphamcongty: 'LyDoChuaDung',
-      ngayhenchamsoclai: 'Ngayhenchamsoclai', ngaygiosua: 'NgayGioSua', nguoisua: 'NguoiSua', mucdotiemnang: 'Mucdotiemnang', anh: 'Anh', zalo: 'Zalo',
+      ngayhenchamsoclai: 'Ngayhenchamsoclai', ngaygiosua: 'NgayGioSua', nguoisua: 'NguoiSua', nguongps: 'NguonGPS', dochinhxacgps: 'DoChinhXacGPS', kiemtraanh: 'KiemTraAnh', mucdotiemnang: 'Mucdotiemnang', anh: 'Anh', zalo: 'Zalo',
       nhanvienphutrach: 'Nhanvienphutrach', ghichu: 'Ghichu', id: 'ID', ngayiso: 'NgayISO'
     };
 
@@ -1063,6 +1181,11 @@
       return str;
     }
 
+    function photoInfo(rec) {
+      if (!rec.NguonGPS && !rec.KiemTraAnh) return '';
+      const warn = /^Cảnh báo/i.test(rec.KiemTraAnh || '');
+      return `<div class="text-sm ${warn ? 'text-red-700' : 'text-emerald-700'}">📍 ${escapeHtml(rec.NguonGPS || '')}${rec.DoChinhXacGPS ? ' · ' + escapeHtml(rec.DoChinhXacGPS) : ''}<br>${warn ? '⚠ ' : '✔ '}${escapeHtml(rec.KiemTraAnh || '')}</div>`;
+    }
     function editedInfo(rec) {
       if (!rec.NgayGioSua && !rec.NguoiSua) return '';
       return `<div class="text-sm text-amber-700 mt-1">✎ Sửa: ${escapeHtml(rec.NgayGioSua || '')}${rec.NguoiSua ? ' · ' + escapeHtml(rec.NguoiSua) : ''}</div>`;
@@ -1173,6 +1296,7 @@
               <div>${escapeHtml(rec.Ghichu || '')}</div>
               ${renderExtras(rec)}
               ${(rec.ToadoGPS && rec.ToadoGPS !== 'N/A' && !/^https?:/i.test(rec.ToadoGPS)) ? `<div class="text-sm text-slate-500">GPS: ${escapeHtml(rec.ToadoGPS)}</div>` : ''}
+              ${photoInfo(rec)}
               <div class="pt-2 mt-1 border-t border-slate-200 space-y-1.5">
                 <div class="font-bold text-emerald-800 text-[0.9em]">Check lại (${(rec._checks || []).length})</div>
                 ${renderChecks(rec)}
@@ -1213,6 +1337,7 @@
               <div><span class="font-bold">Hẹn chăm sóc lại:</span> <span class="font-semibold text-blue-800">${escapeHtml(formatDisplayDateOnly(rec.Ngayhenchamsoclai))}</span></div>
               <div><span class="font-bold">Ghi chú:</span> ${escapeHtml(rec.Ghichu || '')}</div>
               ${renderExtras(rec)}
+              ${photoInfo(rec)}
               <div class="pt-2 mt-1 border-t border-slate-200 space-y-1.5">
                 <div class="font-bold text-emerald-800">Check lại (${(rec._checks || []).length})</div>
                 ${renderChecks(rec)}
@@ -1246,7 +1371,7 @@
       const headers = [
         'TT', 'Ngày check-in', 'NV phụ trách', 'Tên khách hàng', 'Người liên hệ', 'SĐT', 'Zalo',
         'Loại cửa hàng', 'SP quan tâm', 'SP đã mua', 'SP đang dùng', 'Lý do chưa dùng',
-        'Ngày hẹn chăm sóc lại', 'Mức độ tiềm năng', 'Địa chỉ', 'Ghi chú', 'Link ảnh', 'Link GPS', 'Xác nhận Zalo', 'Lịch sử check lại', 'Sửa lần cuối'
+        'Ngày hẹn chăm sóc lại', 'Mức độ tiềm năng', 'Địa chỉ', 'Ghi chú', 'Link ảnh', 'Link GPS', 'Xác nhận Zalo', 'Lịch sử check lại', 'Sửa lần cuối', 'Nguồn GPS', 'Độ chính xác GPS', 'Kiểm tra ảnh'
       ];
 
       const aoa = [headers].concat(rows.map(r => [
@@ -1270,7 +1395,10 @@
         (r.ToadoGPS && r.ToadoGPS !== 'N/A') ? r.ToadoGPS : '',
         latestZalo(r),
         (r._checks || []).map(x => `[${x.date}] ${x.person}: ${x.note}${x.zalo && x.zalo !== 'Chưa kiểm tra' ? ' (' + x.zalo + ')' : ''}`).join('\n'),
-        (r.NgayGioSua || r.NguoiSua) ? `${r.NgayGioSua || ''} · ${r.NguoiSua || ''}` : ''
+        (r.NgayGioSua || r.NguoiSua) ? `${r.NgayGioSua || ''} · ${r.NguoiSua || ''}` : '',
+        r.NguonGPS || '',
+        r.DoChinhXacGPS || '',
+        r.KiemTraAnh || ''
       ]));
 
       let label = 'TatCa';
@@ -1280,7 +1408,7 @@
 
       if (window.XLSX) {
         const ws = XLSX.utils.aoa_to_sheet(aoa);
-        ws['!cols'] = [6, 18, 18, 28, 18, 14, 14, 24, 24, 22, 22, 30, 16, 14, 40, 40, 30, 30, 16, 60, 28].map(w => ({ wch: w }));
+        ws['!cols'] = [6, 18, 18, 28, 18, 14, 14, 24, 24, 22, 22, 30, 16, 14, 40, 40, 30, 30, 16, 60, 28, 22, 16, 40].map(w => ({ wch: w }));
         ws['!autofilter'] = { ref: ws['!ref'] };
         ws['!freeze'] = { xSplit: 0, ySplit: 1 };
         const wb = XLSX.utils.book_new();
